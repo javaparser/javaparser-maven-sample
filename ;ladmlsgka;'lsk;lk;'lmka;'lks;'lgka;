@@ -1,0 +1,175 @@
+[33mcommit c50ef6b5b087be23ae815e1dcaafbfea4964d800[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: [Ravi Kumar] <[grk9585@gmail.com]>
+Date:   Wed Jul 7 22:37:45 2021 +0530
+
+    adding file
+
+[33mcommit 775c041a65df0d821b033d3b30ea8cee9ddd69cb[m
+Author: ravik1159 <68376519+ravik1159@users.noreply.github.com>
+Date:   Wed Apr 7 16:36:25 2021 +0000
+
+    Update pom.xml
+
+[33mcommit 366317f8035aec816b1d7257095fc6e9b75aa183[m
+Author: ravik1159 <68376519+ravik1159@users.noreply.github.com>
+Date:   Tue Apr 6 06:06:55 2021 +0000
+
+    Update Test.txt
+
+[33mcommit 5cb3b2816b1d20f996ddecaafc28324c0f858589[m[33m ([m[1;31morigin/demo[m[33m)[m
+Author: grk9585 <grk9585@gmail.com>
+Date:   Mon Apr 5 08:15:35 2021 +0000
+
+    adding test file
+
+[33mcommit ce9f6d52589a93bb3653411e92dee3889a3356e8[m
+Merge: a8f813f f3d68ec
+Author: Roger Howell <MysterAitch@users.noreply.github.com>
+Date:   Fri Apr 24 12:12:44 2020 +0000
+
+    Merge pull request #10 from javaparser/dependabot/maven/com.github.javaparser-javaparser-core-3.15.21
+
+[33mcommit a8f813f54fdd72b06f855a7736b5b8b54811357d[m
+Merge: c6bbc36 64d02df
+Author: Roger Howell <MysterAitch@users.noreply.github.com>
+Date:   Fri Apr 24 12:11:36 2020 +0000
+
+    Merge pull request #9 from javaparser/dependabot/maven/org.apache.maven.plugins-maven-shade-plugin-3.2.3
+
+[33mcommit f3d68ec6d208856af6b86d732e129337541c28ee[m
+Author: dependabot-preview[bot] <27856297+dependabot-preview[bot]@users.noreply.github.com>
+Date:   Fri Apr 24 12:10:13 2020 +0000
+
+    Bump javaparser-core from 3.15.18 to 3.15.21
+    
+    Bumps [javaparser-core](https://github.com/javaparser/javaparser) from 3.15.18 to 3.15.21.
+    - [Release notes](https://github.com/javaparser/javaparser/releases)
+    - [Changelog](https://github.com/javaparser/javaparser/blob/master/changelog.md)
+    - [Commits](https://github.com/javaparser/javaparser/compare/javaparser-parent-3.15.18...javaparser-parent-3.15.21)
+    
+    Signed-off-by: dependabot-preview[bot] <support@dependabot.com>
+
+[33mcommit 64d02df3b728c5304b8e3d18ff622a50f5cf5aae[m
+Author: dependabot-preview[bot] <27856297+dependabot-preview[bot]@users.noreply.github.com>
+Date:   Fri Apr 24 12:09:47 2020 +0000
+
+    Bump maven-shade-plugin from 3.2.1 to 3.2.3
+    
+    Bumps [maven-shade-plugin](https://github.com/apache/maven-shade-plugin) from 3.2.1 to 3.2.3.
+    - [Release notes](https://github.com/apache/maven-shade-plugin/releases)
+    - [Commits](https://github.com/apache/maven-shade-plugin/compare/maven-shade-plugin-3.2.1...maven-shade-plugin-3.2.3)
+    
+    Signed-off-by: dependabot-preview[bot] <support@dependabot.com>
+
+[33mcommit c6bbc3650ec238f8475e3c0b8bab27302dab8b70[m
+Merge: df2c867 e3d6522
+Author: Roger Howell <MysterAitch@users.noreply.github.com>
+Date:   Fri Apr 17 14:32:07 2020 +0000
+
+    Merge pull request #8 from javaparser/openjdk-from-oraclejdk
+
+[33mcommit e3d6522e56e397ffe45f417e9d56a797eb98e80b[m
+Author: Roger Howell <MysterAitch@users.noreply.github.com>
+Date:   Fri Apr 17 15:30:17 2020 +0100
+
+    switch to openjdk8 (from oraclejdk8)
+    
+    (hopefully) fixes #6
+
+[33mcommit df2c86701b5de81b5d76b4ca08c3b45b5066eeb9[m
+Merge: bd8b737 0880e51
+Author: Roger Howell <MysterAitch@users.noreply.github.com>
+Date:   Fri Apr 17 12:19:46 2020 +0000
+
+    Merge pull request #5 from javaparser/update_and_stdout
+
+[33mcommit bd8b737f207676c141dcc7ade9ba0e0704d0c2c6[m
+Merge: 646cebb bcf0e91
+Author: Roger Howell <MysterAitch@users.noreply.github.com>
+Date:   Fri Apr 17 12:19:29 2020 +0000
+
+    Merge pull request #7 from javaparser/run-from-cmd
+
+[33mcommit bcf0e918dc2944f2f5f3ecd3df5393e569cb525e[m
+Author: Danny van Bruggen <55701+matozoid@users.noreply.github.com>
+Date:   Thu Apr 16 20:16:16 2020 +0200
+
+    Note about starting from the command line
+
+[33mcommit 0880e51117e2c8f4ce146a283009139c036b2db8[m
+Author: Danny van Bruggen <55701+matozoid@users.noreply.github.com>
+Date:   Thu Apr 9 10:59:40 2020 +0200
+
+    Upgrade dependency and create some output
+
+[33mcommit 42dbbc54660875b50eaf38275e86863031bbf820[m
+Author: Danny van Bruggen <55701+matozoid@users.noreply.github.com>
+Date:   Sun Dec 15 21:48:41 2019 +0100
+
+    Upgrade dependency
+
+[33mcommit 646cebbe630ab346277b39680c2db6b367a06b00[m
+Author: Danny van Bruggen <55701+matozoid@users.noreply.github.com>
+Date:   Sun Jul 14 14:00:12 2019 +0200
+
+    Make the jar executable
+
+[33mcommit 0afae3f5a9e5d0dc070425cb9317a7f08d0e572d[m
+Author: Danny van Bruggen <55701+matozoid@users.noreply.github.com>
+Date:   Tue Jun 18 21:04:44 2019 +0200
+
+    Upgrade JP version
+
+[33mcommit 0f747379b7d0d8f769956b06a110afdcb2aa7de2[m
+Author: Danny van Bruggen <hexagonaal@gmail.com>
+Date:   Mon Mar 4 19:33:35 2019 +0100
+
+    Upgrade JP version
+
+[33mcommit 5c77f56b6e4c9bbc0fa468db34e9b25573bdaee3[m
+Author: Danny van Bruggen <hexagonaal@gmail.com>
+Date:   Sun Nov 25 16:31:27 2018 +0100
+
+    Upgrade JP version
+
+[33mcommit 0a28aab4b9fb97cd42e5a2ca4af2ca15e08bf37f[m
+Author: Danny van Bruggen <hexagonaal@gmail.com>
+Date:   Sat Jul 7 16:56:00 2018 +0200
+
+    Upgrade JP version
+
+[33mcommit b38a47ba291f796d3d92541c17e2b0d066e1900b[m
+Author: Danny van Bruggen <hexagonaal@gmail.com>
+Date:   Thu Apr 12 18:26:47 2018 +0200
+
+    Upgrade JP version
+
+[33mcommit 604080b344f334011e29a66fd6fba918b68b5266[m
+Author: Danny van Bruggen <hexagonaal@gmail.com>
+Date:   Sun Jan 28 13:46:19 2018 +0100
+
+    Upgrade JP version
+
+[33mcommit a8ee51b01eaa0db1cbf611a005c41e5106d5550b[m
+Author: Danny van Bruggen <hexagonaal@gmail.com>
+Date:   Sun Dec 17 19:53:04 2017 +0100
+
+    Update JP
+
+[33mcommit 1a11908c38740d6aeaa6fee51f6a29a137370eb6[m
+Author: Danny van Bruggen <hexagonaal@gmail.com>
+Date:   Sun Oct 15 20:03:31 2017 +0200
+
+    Update JP
+
+[33mcommit 85efccd60012d32981e825f7afb4cabd72cebd72[m
+Author: Danny van Bruggen <hexagonaal@gmail.com>
+Date:   Sun Oct 8 14:52:01 2017 +0200
+
+    Update JP
+
+[33mcommit 219f075779072d3725709caa3111d9105a2dd836[m
+Author: Danny van Bruggen <hexagonaal@gmail.com>
+Date:   Tue Sep 26 22:49:00 2017 +0200
+
+    Import project from other repo

@@ -29,7 +29,7 @@ public class LogicPositivizer {
         // Our sample is in the root of this directory, so no package name.
         CompilationUnit cu = sourceRoot.parse("", "Blabla.java");
 
-        Log.info("Positivizing!!");
+        Log.info("Positivizing!!!!");
         
         cu.accept(new ModifierVisitor<Void>() {
             /**

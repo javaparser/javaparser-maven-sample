@@ -1,22 +1,7 @@
-package com.yourorganization.maven_sample;
+package com.tmax.ast;
 
 import com.github.javaparser.ParseResult;
-import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.expr.BinaryExpr;
-import com.github.javaparser.ast.expr.Name;
-import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.stmt.Statement;
-import com.github.javaparser.ast.type.Type;
-import com.github.javaparser.ast.visitor.ModifierVisitor;
-import com.github.javaparser.ast.visitor.Visitable;
-import com.github.javaparser.resolution.types.ResolvedType;
-import com.github.javaparser.symbolsolver.JavaSymbolSolver;
-import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.github.javaparser.symbolsolver.utils.SymbolSolverCollectionStrategy;
 import com.github.javaparser.utils.*;
 
@@ -29,7 +14,7 @@ import java.util.Optional;
 /**
  * Some code that uses JavaParser.
  */
-public class LogicPositivizer {
+public class ProjectParser {
     public static void main(String[] args) throws IOException {
         // 파싱할 프로젝트 루트 경로
         Path root = Paths.get(("/Users/namgonkim/workspace/java-baseball"));
@@ -50,15 +35,16 @@ public class LogicPositivizer {
                     CompilationUnit cu = optionalCompilationUnit.get();
 
                     // cu를 활용
-
+                    System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
+                    System.out.println(cu);
                 }
             }
 
-            // 소스코드를 저장
+            // 소스코드 형태로 cu를 재조립해서 output 디렉토리에 저장
             // This saves all the files we just read to an output directory.
             sourceRoot.saveAll(
                     // The path of the Maven module/project which contains the LogicPositivizer class.
-                    CodeGenerationUtils.mavenModuleRoot(LogicPositivizer.class)
+                    CodeGenerationUtils.mavenModuleRoot(ProjectParser.class)
                             // appended with a path to "output"
                             .resolve(Paths.get("output")));
         }

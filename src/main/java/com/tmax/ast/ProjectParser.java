@@ -43,13 +43,13 @@ public class ProjectParser {
 
                     // cu를 활용
                     String fileName = cu.getStorage().get().getFileName();
-                    //
-                    if(fileName.equals("FixedNumberGenerator.java") || fileName.equals("Input.java") || fileName.equals("Game.java")) {
+                    // fileName.equals("FixedNumberGenerator.java") || fileName.equals("Input.java") ||
+                    if(fileName.equals("GameStatus.java")) {
                         System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
                         convertService.visit(cu);
                     }
 
-                    outputService.dotPrinter(fileName, cu);
+                    // outputService.dotPrinter(fileName, cu);
                 }
             }
             //saveSourceCodesInOutputDir(sourceRoot);

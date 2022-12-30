@@ -2,3 +2,5 @@ target
 .idea
 *.iml
 output
+*.dot
+*.png

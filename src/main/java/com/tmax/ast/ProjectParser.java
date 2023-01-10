@@ -2,17 +2,18 @@ package com.tmax.ast;
 
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.github.javaparser.symbolsolver.utils.SymbolSolverCollectionStrategy;
 import com.github.javaparser.utils.*;
-import com.tmax.ast.dto.BlockDTO;
 import com.tmax.ast.service.ConvertService;
 import com.tmax.ast.service.OutputService;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.SQLOutput;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -43,13 +44,15 @@ public class ProjectParser {
 
                     // cu를 활용
                     String fileName = cu.getStorage().get().getFileName();
-                    // fileName.equals("FixedNumberGenerator.java") || fileName.equals("Input.java") ||
-                    if(fileName.equals("GameStatus.java")) {
+                    // fileName.equals("FixedNumberGenerator.java") || fileName.equals("Input.java") || fileName.equals("GameStatus.java")
+                    if(fileName.equals("Computer.java") || fileName.equals("RandomNumberGenerator.java") ||
+                            fileName.equals("NumberGenerator.java") || fileName.equals("FixedNumberGenerator.java")) {
                         System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
                         convertService.visit(cu);
+
                     }
 
-                    // outputService.dotPrinter(fileName, cu);
+                    outputService.dotPrinter(fileName, cu);
                 }
             }
             //saveSourceCodesInOutputDir(sourceRoot);
@@ -59,6 +62,12 @@ public class ProjectParser {
         System.out.println(convertService.getPackageDTOList());
         System.out.println(convertService.getImportDTOList());
         System.out.println(convertService.getClassDTOList());
+
+        convertService.visitVariablesAndBuildClassId();
+
+        System.out.println(convertService.getVariableDTOList());
+
+        convertService.clear();
     }
 
     private static void saveSourceCodesInOutputDir(SourceRoot sourceRoot) {

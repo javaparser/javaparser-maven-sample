@@ -1,9 +1,10 @@
 package com.tmax.ast.dto;
 
-public class ImportDTO {
+public class ImportDTO{
     private Long importId;
     private Long blockId;
     private String name;
+    private Position position;
 
     public Long getImportId() {
         return importId;
@@ -29,12 +30,21 @@ public class ImportDTO {
         this.name = name;
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
     @Override
     public String toString() {
         return "ImportDTO :{" +
                 "importId : " + importId +
                 ", blockId : " + blockId +
                 ", name : '" + name + '\'' +
-                '}';
+                ", Position : '" + position +
+                "}\n";
     }
 }

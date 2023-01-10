@@ -1,6 +1,6 @@
 package com.tmax.ast.dto;
 
-public class ClassDTO {
+public class ClassDTO{
     private Long classId;
     private Long packageId;
     private String name;
@@ -10,6 +10,7 @@ public class ClassDTO {
     private String type;
     private Boolean isImplemented;
     private String implementClass;
+    private Position position;
 
     public Long getClassId() {
         return classId;
@@ -83,18 +84,27 @@ public class ClassDTO {
         this.implementClass = implementClass;
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
     @Override
     public String toString() {
         return "ClassDTO : {" +
                 "classId : " + classId +
                 ", packageId : " + packageId +
+                ", blockId : " + blockId +
                 ", name : '" + name + '\'' +
                 ", modifier : '" + modifier + '\'' +
                 ", accessModifier : '" + accessModifier + '\'' +
-                ", blockId : " + blockId +
                 ", type : '" + type + '\'' +
                 ", isImplemented : " + isImplemented +
                 ", implementClass : '" + implementClass + '\'' +
-                '}';
+                ", Position : '" + position +
+                "}\n";
     }
 }

@@ -2,12 +2,13 @@ package com.tmax.ast.dto;
 
 import com.github.javaparser.ast.Node;
 
-public class BlockDTO {
+public class BlockDTO{
     private Long blockId;
     private Long parentBlockId;
     private Integer depth;
     private String blockType;
     private Node blockNode;
+    private Position position;
 
     public Long getBlockId() {
         return blockId;
@@ -49,6 +50,14 @@ public class BlockDTO {
         this.blockNode = blockNode;
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
     @Override
     public String toString() {
         return "BlockDTO : {" +
@@ -56,7 +65,8 @@ public class BlockDTO {
                 ", parentBlockId : " + parentBlockId +
                 ", depth : " + depth +
                 ", blockType : '" + blockType + '\'' +
-                "}";
+                ", Position : '" + position + '\'' +
+                "}\n";
 //                ", \nblockNode : \n" + blockNode +
 //                "}\n";
     }

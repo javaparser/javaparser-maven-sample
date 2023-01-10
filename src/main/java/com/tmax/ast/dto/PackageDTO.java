@@ -1,9 +1,10 @@
 package com.tmax.ast.dto;
 
-public class PackageDTO {
+public class PackageDTO{
     private Long packageId;
     private Long blockId;
     private String name;
+    private Position position;
 
     public Long getPackageId() {
         return packageId;
@@ -29,12 +30,21 @@ public class PackageDTO {
         this.name = name;
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
     @Override
     public String toString() {
         return "PackageDTO : {" +
                 "packageId : " + packageId +
                 ", blockId : " + blockId +
                 ", name : '" + name + '\'' +
-                '}';
+                ", Position : '" + position +
+                "}\n";
     }
 }

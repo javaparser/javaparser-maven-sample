@@ -6,7 +6,7 @@ import com.github.javaparser.ast.type.Type;
 
 import java.util.Optional;
 
-public class VariableDTO{
+public class VariableDeclarationDTO {
     private Long variableId;
     private Long blockId;
     private Long classId;
@@ -118,7 +118,7 @@ public class VariableDTO{
 
     @Override
     public String toString() {
-        return "VariableDTO : {" +
+        return "VariableDeclarationDTO : {" +
                 "variableId : " + variableId +
                 ", blockId : " + blockId +
                 ", classId : " + classId +

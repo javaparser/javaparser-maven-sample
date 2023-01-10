@@ -9,7 +9,6 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.type.Type;
 import com.tmax.ast.dto.*;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
 
@@ -18,7 +17,7 @@ public class ConvertService {
     private final List<PackageDTO> packageDTOList;
     private final List<ImportDTO> importDTOList;
     private final List<ClassDTO> classDTOList;
-    private final List<VariableDTO> variableDTOList;
+    private final List<VariableDeclarationDTO> variableDeclarationDTOList;
     private static Long blockId = 1L;
     private static Long packageId = 1L;
     private static Long importId = 1L;
@@ -29,7 +28,7 @@ public class ConvertService {
         this.packageDTOList = new ArrayList<>();
         this.importDTOList = new ArrayList<>();
         this.classDTOList = new ArrayList<>();
-        this.variableDTOList = new ArrayList<>();
+        this.variableDeclarationDTOList = new ArrayList<>();
     }
     public List<BlockDTO> getBlockDTOList() {
         return this.blockDTOList;
@@ -43,15 +42,15 @@ public class ConvertService {
     public List<ClassDTO> getClassDTOList() {
         return this.classDTOList;
     }
-    public List<VariableDTO> getVariableDTOList() {
-        return this.variableDTOList;
+    public List<VariableDeclarationDTO> getVariableDeclarationDTOList() {
+        return this.variableDeclarationDTOList;
     }
     public void clear() {
         this.blockDTOList.clear();
         this.packageDTOList.clear();
         this.importDTOList.clear();
         this.classDTOList.clear();
-        this.variableDTOList.clear();
+        this.variableDeclarationDTOList.clear();
     }
 
     public void visit(Node node) {
@@ -71,84 +70,67 @@ public class ConvertService {
     }
 
     public void visitVariablesAndBuildClassId() {
-        for(VariableDTO variableDTO : variableDTOList) {
+        for(VariableDeclarationDTO variableDeclarationDTO : variableDeclarationDTOList) {
             // 선언한 변수가 primitive(원시) 타입이면 class id 는 0으로
-            if(variableDTO.getVariableType().isPrimitiveType()) {
+            if(variableDeclarationDTO.getVariableType().isPrimitiveType()) {
                 continue;
             }
             // 1. 패키지를 import 해서 사용하는 클래스 변수인지 체크
-            isImportPackage(variableDTO);
+            isImportPackage(variableDeclarationDTO);
 
             // 2. 그게 아니라면, 같은 프로젝트 내에 존재하는 클래스 변수
-            isProjectPackage(variableDTO);
+            isProjectPackage(variableDeclarationDTO);
         }
 
-        for(VariableDTO variableDTO : variableDTOList) {
-            if(variableDTO.getImportId().equals(0L) || variableDTO.getClassId().equals(0L)) {
-                System.out.print(variableDTO);
+        for(VariableDeclarationDTO variableDeclarationDTO : variableDeclarationDTOList) {
+            if(variableDeclarationDTO.getImportId().equals(0L) || variableDeclarationDTO.getClassId().equals(0L)) {
+                System.out.print(variableDeclarationDTO);
             }
         }
         System.out.println();
     }
-    private Long getBlockIdByVariable(VariableDTO variableDTO) {
-        // 최상단에 import로 선언한 패키지.클래스 찾기
-        Long findBlockId = variableDTO.getBlockId();
-        while(true) {
-            Long finalFindBlockId = findBlockId;
-            BlockDTO blockDTO = blockDTOList.stream()
-                    .filter(blockDTO1 -> blockDTO1.getBlockId().equals(finalFindBlockId))
-                    .findFirst()
-                    .orElseGet(BlockDTO::new);
-            if(blockDTO.getParentBlockId() == null) {
-                break;
-            }
-            findBlockId = blockDTO.getParentBlockId();
-        }
-        return findBlockId;
-    }
-    private void isImportPackage(VariableDTO variableDTO) {
+
+    private void isImportPackage(VariableDeclarationDTO variableDeclarationDTO) {
         List<ImportDTO> imported = new ArrayList<>();
-        if(variableDTO.getVariableType().getChildNodes().size() == 0) {
-            System.out.println("'" + variableDTO.getVariableType().asString() + "'는 하위 노드가 존재하지 않습니다.");
+        if(variableDeclarationDTO.getVariableType().getChildNodes().size() == 0) {
+            System.out.println("'" + variableDeclarationDTO.getVariableType().asString() + "'는 하위 노드가 존재하지 않습니다.");
             return;
         }
-        String variableTypeName = variableDTO.getVariableType().getChildNodes().get(0).toString();
-        System.out.println("[isImportPackage] : Find Class about '" + variableDTO.getType() + " " + variableDTO.getName() + "' variable");
+        String variableTypeName = variableDeclarationDTO.getVariableType().getChildNodes().get(0).toString();
+        System.out.println("[isImportPackage] : Find Class about '" + variableDeclarationDTO.getType() + " " + variableDeclarationDTO.getName() + "' variable");
 
-        Long findBlockId = getBlockIdByVariable(variableDTO);
+        Long findBlockId = getBlockIdByVariable(variableDeclarationDTO);
 
-        // import한 패키지.클래스라면 importId를 추가
+        // TODO : import 패키지 중 *로 선언하는 것이 있으면 해당 라이브러리 내 모든 패키지->소스코드들을 다 까봐야 한다.
+
+        // import 패키지의 클래스라면 import Id를 추가
         for(ImportDTO importDTO : importDTOList) {
             String[] importPkg = importDTO.getName().split("\\.");
             if(importDTO.getBlockId().equals(findBlockId) && variableTypeName.equals(importPkg[importPkg.length-1])){
                 imported.add(importDTO);
             }
-            // * 가 있으면 pkg 를 다 까봐야 한다.
-            else if(importDTO.getName().contains(".*")) {
-                String importWildCardPkg = importDTO.getName().replace(".*", "");
-            }
         }
 
         if(imported.size() == 1) {
             System.out.println("[isImportPackage] : import 에서 '" + imported.get(0).getName() + "'를 발견했습니다.");
-             variableDTO.setImportId(imported.get(0).getImportId());
+             variableDeclarationDTO.setImportId(imported.get(0).getImportId());
 
             String[] importPkg = imported.get(0).getName().split("\\.");
-            String importPkgPath = "";
+            StringBuilder importPkgPath = new StringBuilder();
             for(int i = 0; i < importPkg.length-1; i++) {
-                importPkgPath += importPkg[i];
+                importPkgPath.append(importPkg[i]);
                 if(i != importPkg.length-2) {
-                    importPkgPath += ".";
+                    importPkgPath.append(".");
                 }
             }
             String importPkgClass = importPkg[importPkg.length-1];
 
             for(PackageDTO packageDTO : packageDTOList) {
-                if(packageDTO.getName().equals(importPkgPath)) {
+                if(packageDTO.getName().equals(importPkgPath.toString())) {
                     for(ClassDTO classDTO : classDTOList) {
                         if(classDTO.getName().equals(importPkgClass)) {
-                            System.out.println("[isImportPackage] : '"+ imported.get(0).getName() +"'에 대한 클래스를 발견하여 '"+ variableDTO.getName() +"'의 class id '" + classDTO.getClassId() +"'를 부여합니다");
-                            variableDTO.setClassId(classDTO.getClassId());
+                            System.out.println("[isImportPackage] : '"+ imported.get(0).getName() +"'에 대한 클래스를 발견하여 '"+ variableDeclarationDTO.getName() +"'의 class id '" + classDTO.getClassId() +"'를 부여합니다");
+                            variableDeclarationDTO.setClassId(classDTO.getClassId());
                             break;
                         }
                     }
@@ -165,17 +147,17 @@ public class ConvertService {
         }
     }
 
-    private void isProjectPackage(VariableDTO variableDTO) {
-        if(variableDTO.getClassId().equals(0L)) {
+    private void isProjectPackage(VariableDeclarationDTO variableDeclarationDTO) {
+        if(variableDeclarationDTO.getClassId().equals(0L)) {
             // 선언한 변수가 속한 패키지를 찾는다
-            if(variableDTO.getVariableType().getChildNodes().size() == 0) {
-                System.out.println("'" + variableDTO.getVariableType().asString() + "'는 하위 노드가 존재하지 않습니다.");
+            if(variableDeclarationDTO.getVariableType().getChildNodes().size() == 0) {
+                System.out.println("'" + variableDeclarationDTO.getVariableType().asString() + "'는 하위 노드가 존재하지 않습니다.");
                 return;
             }
-            String variableTypeName = variableDTO.getVariableType().getChildNodes().get(0).toString();
-            System.out.println("[isProjectPackage] : Find Class about '" + variableDTO.getType() + " " + variableDTO.getName() + "' variable");
+            String variableTypeName = variableDeclarationDTO.getVariableType().getChildNodes().get(0).toString();
+            System.out.println("[isProjectPackage] : Find Class about '" + variableDeclarationDTO.getType() + " " + variableDeclarationDTO.getName() + "' variable");
 
-            Long findBlockId = getBlockIdByVariable(variableDTO);
+            Long findBlockId = getBlockIdByVariable(variableDeclarationDTO);
 
             PackageDTO packageDTO = packageDTOList.stream()
                     .filter(pkg -> pkg.getBlockId().equals(findBlockId))
@@ -199,8 +181,8 @@ public class ConvertService {
                 for(ClassDTO cls : classDTOList) {
                     // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
                     if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(variableTypeName)) {
-                        System.out.println("[isProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ variableDTO.getName() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
-                        variableDTO.setClassId(cls.getClassId());
+                        System.out.println("[isProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ variableDeclarationDTO.getName() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
+                        variableDeclarationDTO.setClassId(cls.getClassId());
                         isFind = true;
                         break;
                     }
@@ -210,6 +192,23 @@ public class ConvertService {
                 System.out.println("[isProjectPackage] : project 패키지를 찾지 못했습니다.");
             }
         }
+    }
+
+    // getBlockIdByVariable: 변수가 선언된 소스코드의 최상단 블락의 위치를 반환 (변수가 선언된 블락 id를 가지고, 해당 블락의 최상단 블락을 찾아 리턴)
+    private Long getBlockIdByVariable(VariableDeclarationDTO variableDeclarationDTO) {
+        Long findBlockId = variableDeclarationDTO.getBlockId();
+        while(true) {
+            Long finalFindBlockId = findBlockId;
+            BlockDTO blockDTO = blockDTOList.stream()
+                    .filter(blockDTO1 -> blockDTO1.getBlockId().equals(finalFindBlockId))
+                    .findFirst()
+                    .orElseGet(BlockDTO::new);
+            if(blockDTO.getParentBlockId() == null) {
+                break;
+            }
+            findBlockId = blockDTO.getParentBlockId();
+        }
+        return findBlockId;
     }
 
     private BlockDTO visitAndBuildRootBlock(CompilationUnit cu) {
@@ -242,13 +241,13 @@ public class ConvertService {
                     break;
                 case "ClassOrInterfaceDeclaration":
                     if(packageDTO != null) {
-                        classDTO = buildClassDTO(classId, blockDTO.getBlockId(), packageDTO.getPackageId(), node, "class");
+                        classDTO = buildClassDTO(classId, blockDTO.getBlockId(), packageDTO.getPackageId(), node);
                         classId += 1;
                         classDTOList.add(classDTO);
                     }
                     break;
                 case "EnumDeclaration":
-                    classDTO = buildEnum(classId, blockDTO.getBlockId(), packageDTO.getPackageId(), node, "enum");
+                    classDTO = buildEnum(classId, blockDTO.getBlockId(), packageDTO.getPackageId(), node);
                     classId += 1;
                     classDTOList.add(classDTO);
                     break;
@@ -305,7 +304,7 @@ public class ConvertService {
     }
 
     private void buildVariableInMethod(Long variableId, Long blockId, Node node) {
-        VariableDTO variableDTO = new VariableDTO();
+        VariableDeclarationDTO variableDeclarationDTO = new VariableDeclarationDTO();
         VariableDeclarationExpr variableDeclarationExpr = (VariableDeclarationExpr) node;
 
         String modifierKeyword = "";
@@ -340,18 +339,18 @@ public class ConvertService {
             initializer = variableDeclarator.getInitializer();
         }
 
-        variableDTO.setVariableId(variableId);
-        variableDTO.setBlockId(blockId);
-        variableDTO.setClassId(classId);
-        variableDTO.setImportId(importId);
-        variableDTO.setVariableType(variableType);
-        variableDTO.setType(type);
-        variableDTO.setName(name);
-        variableDTO.setModifier(modifierKeyword);
-        variableDTO.setAccessModifier(accessModifierKeyword);
-        variableDTO.setInitializer(initializer);
-        variableDTO.setNode(node);
-        variableDTO.setPosition(
+        variableDeclarationDTO.setVariableId(variableId);
+        variableDeclarationDTO.setBlockId(blockId);
+        variableDeclarationDTO.setClassId(classId);
+        variableDeclarationDTO.setImportId(importId);
+        variableDeclarationDTO.setVariableType(variableType);
+        variableDeclarationDTO.setType(type);
+        variableDeclarationDTO.setName(name);
+        variableDeclarationDTO.setModifier(modifierKeyword);
+        variableDeclarationDTO.setAccessModifier(accessModifierKeyword);
+        variableDeclarationDTO.setInitializer(initializer);
+        variableDeclarationDTO.setNode(node);
+        variableDeclarationDTO.setPosition(
                 new Position(
                         node.getRange().get().begin.line,
                         node.getRange().get().begin.column,
@@ -360,11 +359,11 @@ public class ConvertService {
                 )
         );
 
-        variableDTOList.add(variableDTO);
+        variableDeclarationDTOList.add(variableDeclarationDTO);
     }
 
     private void buildVariableInMemberField(Long variableId, Long blockId, Node node) {
-        VariableDTO variableDTO = new VariableDTO();
+        VariableDeclarationDTO variableDeclarationDTO = new VariableDeclarationDTO();
         FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 
         String modifierKeyword = "";
@@ -399,18 +398,18 @@ public class ConvertService {
             initializer = variableDeclarator.getInitializer();
         }
 
-        variableDTO.setVariableId(variableId);
-        variableDTO.setBlockId(blockId);
-        variableDTO.setClassId(classId);
-        variableDTO.setImportId(importId);
-        variableDTO.setVariableType(variableType);
-        variableDTO.setType(type);
-        variableDTO.setName(name);
-        variableDTO.setModifier(modifierKeyword);
-        variableDTO.setAccessModifier(accessModifierKeyword);
-        variableDTO.setInitializer(initializer);
-        variableDTO.setNode(node);
-        variableDTO.setPosition(
+        variableDeclarationDTO.setVariableId(variableId);
+        variableDeclarationDTO.setBlockId(blockId);
+        variableDeclarationDTO.setClassId(classId);
+        variableDeclarationDTO.setImportId(importId);
+        variableDeclarationDTO.setVariableType(variableType);
+        variableDeclarationDTO.setType(type);
+        variableDeclarationDTO.setName(name);
+        variableDeclarationDTO.setModifier(modifierKeyword);
+        variableDeclarationDTO.setAccessModifier(accessModifierKeyword);
+        variableDeclarationDTO.setInitializer(initializer);
+        variableDeclarationDTO.setNode(node);
+        variableDeclarationDTO.setPosition(
                 new Position(
                         node.getRange().get().begin.line,
                         node.getRange().get().begin.column,
@@ -419,7 +418,7 @@ public class ConvertService {
                 )
         );
 
-        variableDTOList.add(variableDTO);
+        variableDeclarationDTOList.add(variableDeclarationDTO);
     }
 
     public BlockDTO buildBlockDTO(Long blockId, Integer depth, Long ParentBlockId, String blockType, Node node) {
@@ -489,7 +488,7 @@ public class ConvertService {
         return importDTO;
     }
 
-    private ClassDTO buildClassDTO(Long classId, Long blockId, Long packageId ,Node node, String classType) {
+    private ClassDTO buildClassDTO(Long classId, Long blockId, Long packageId ,Node node) {
         ClassDTO classDTO = new ClassDTO();
 
         ClassOrInterfaceDeclaration classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration) node;
@@ -498,6 +497,7 @@ public class ConvertService {
         String modifierKeyword = "";
         String accessModifierKeyword = "";
         String className = classOrInterfaceDeclaration.getNameAsString();
+        String classType;
 
         NodeList<Modifier> modifiers = classOrInterfaceDeclaration.getModifiers();
         for(Modifier modifier : modifiers) {
@@ -545,7 +545,7 @@ public class ConvertService {
         return classDTO;
     }
 
-    private ClassDTO buildEnum(Long classId, Long blockId, Long packageId, Node node, String classType) {
+    private ClassDTO buildEnum(Long classId, Long blockId, Long packageId, Node node) {
         ClassDTO classDTO = new ClassDTO();
 
         EnumDeclaration enumDeclaration = (EnumDeclaration) node;
@@ -566,7 +566,7 @@ public class ConvertService {
             }
         }
 
-        NodeList<EnumConstantDeclaration> enumConstantDeclarations = enumDeclaration.getEntries();
+        // NodeList<EnumConstantDeclaration> enumConstantDeclarations = enumDeclaration.getEntries();
 
         classDTO.setClassId(classId);
         classDTO.setBlockId(blockId);
@@ -575,7 +575,7 @@ public class ConvertService {
         classDTO.setModifier(modifierKeyword);
         classDTO.setAccessModifier(accessModifierKeyword);
         // enumConstantDeclarations 를 class dto 에 넣을 만한 멤버 변수가 필요함.
-        classDTO.setType(classType);
+        classDTO.setType("enum");
         classDTO.setPosition(
                 new Position(
                         node.getRange().get().begin.line,

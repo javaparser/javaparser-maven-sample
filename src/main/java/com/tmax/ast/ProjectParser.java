@@ -70,7 +70,7 @@ public class ProjectParser {
 
         convertService.visitVariablesAndBuildClassId();
 
-        System.out.println(convertService.getVariableDTOList());
+        System.out.println(convertService.getVariableDeclarationDTOList());
 
         convertService.clear();
     }

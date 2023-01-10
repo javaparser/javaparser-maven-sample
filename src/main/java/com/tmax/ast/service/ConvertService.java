@@ -81,9 +81,14 @@ public class ConvertService {
 
             // 2. 그게 아니라면, 같은 프로젝트 내에 존재하는 클래스 변수
             isProjectPackage(variableDTO);
-
-
         }
+
+        for(VariableDTO variableDTO : variableDTOList) {
+            if(variableDTO.getImportId().equals(0L) || variableDTO.getClassId().equals(0L)) {
+                System.out.print(variableDTO);
+            }
+        }
+        System.out.println();
     }
     private Long getBlockIdByVariable(VariableDTO variableDTO) {
         // 최상단에 import로 선언한 패키지.클래스 찾기
@@ -108,7 +113,7 @@ public class ConvertService {
             return;
         }
         String variableTypeName = variableDTO.getVariableType().getChildNodes().get(0).toString();
-        System.out.println("[isImportPackage] : Find Class about '" + variableTypeName + "' variable");
+        System.out.println("[isImportPackage] : Find Class about '" + variableDTO.getType() + " " + variableDTO.getName() + "' variable");
 
         Long findBlockId = getBlockIdByVariable(variableDTO);
 
@@ -125,7 +130,7 @@ public class ConvertService {
         }
 
         if(imported.size() == 1) {
-            System.out.println("'" + imported.get(0).getName() + "' 라이브러리에 포함되었을 가능성이 높습니다.");
+            System.out.println("[isImportPackage] : import 에서 '" + imported.get(0).getName() + "'를 발견했습니다.");
              variableDTO.setImportId(imported.get(0).getImportId());
 
             String[] importPkg = imported.get(0).getName().split("\\.");
@@ -142,6 +147,7 @@ public class ConvertService {
                 if(packageDTO.getName().equals(importPkgPath)) {
                     for(ClassDTO classDTO : classDTOList) {
                         if(classDTO.getName().equals(importPkgClass)) {
+                            System.out.println("[isImportPackage] : '"+ imported.get(0).getName() +"'에 대한 클래스를 발견하여 '"+ variableDTO.getName() +"'의 class id '" + classDTO.getClassId() +"'를 부여합니다");
                             variableDTO.setClassId(classDTO.getClassId());
                             break;
                         }
@@ -150,12 +156,12 @@ public class ConvertService {
             }
 
         } else if(imported.size() > 1){
-            System.out.println("예상되는 import 패키지가 너무 많습니다.");
+            System.out.println("[isImportPackage] : 예상되는 import 패키지가 너무 많습니다.");
             for(ImportDTO importDTO : imported) {
-                System.out.println("[Expected]: " +importDTO.toString());
+                System.out.print("[isImportPackage] : [Expected]: "+importDTO);
             }
         } else {
-            System.out.println("import 패키지를 찾지 못했습니다.");
+            System.out.println("[isImportPackage] : import 패키지를 찾지 못했습니다.");
         }
     }
 
@@ -167,7 +173,7 @@ public class ConvertService {
                 return;
             }
             String variableTypeName = variableDTO.getVariableType().getChildNodes().get(0).toString();
-            System.out.println("[isProjectPackage] : Find Class about '" + variableTypeName + "' variable");
+            System.out.println("[isProjectPackage] : Find Class about '" + variableDTO.getType() + " " + variableDTO.getName() + "' variable");
 
             Long findBlockId = getBlockIdByVariable(variableDTO);
 
@@ -187,15 +193,21 @@ public class ConvertService {
                 }
             }
 
+            boolean isFind = false;
             // 해당 패키지에서 선언한 클래스를 찾는다
             for(PackageDTO pkg : packaged) {
                 for(ClassDTO cls : classDTOList) {
                     // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
                     if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(variableTypeName)) {
+                        System.out.println("[isProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ variableDTO.getName() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
                         variableDTO.setClassId(cls.getClassId());
+                        isFind = true;
                         break;
                     }
                 }
+            }
+            if(!isFind) {
+                System.out.println("[isProjectPackage] : project 패키지를 찾지 못했습니다.");
             }
         }
     }

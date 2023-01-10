@@ -44,15 +44,20 @@ public class ProjectParser {
 
                     // cu를 활용
                     String fileName = cu.getStorage().get().getFileName();
-                    // fileName.equals("FixedNumberGenerator.java") || fileName.equals("Input.java") || fileName.equals("GameStatus.java")
-                    if(fileName.equals("Computer.java") || fileName.equals("RandomNumberGenerator.java") ||
-                            fileName.equals("NumberGenerator.java") || fileName.equals("FixedNumberGenerator.java")) {
-                        System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
-                        convertService.visit(cu);
 
-                    }
+                    // 전체 다해보기
+                    System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
+                    convertService.visit(cu);
 
-                    outputService.dotPrinter(fileName, cu);
+                    // 부분만 해보기
+//                    if(fileName.equals("Game.java") || fileName.equals("Judgement.java")) {
+////                    if(fileName.equals("Computer.java") || fileName.equals("RandomNumberGenerator.java") ||
+////                            fileName.equals("NumberGenerator.java") || fileName.equals("FixedNumberGenerator.java")) {
+//                        System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
+//                        convertService.visit(cu);
+//                    }
+
+                    //outputService.dotPrinter(fileName, cu);
                 }
             }
             //saveSourceCodesInOutputDir(sourceRoot);

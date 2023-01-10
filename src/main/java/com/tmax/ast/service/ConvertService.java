@@ -9,6 +9,7 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.type.Type;
 import com.tmax.ast.dto.*;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
 
@@ -119,13 +120,12 @@ public class ConvertService {
             }
             // * 가 있으면 pkg 를 다 까봐야 한다.
             else if(importDTO.getName().contains(".*")) {
-                System.out.println(importDTO.getName());
                 String importWildCardPkg = importDTO.getName().replace(".*", "");
             }
         }
 
         if(imported.size() == 1) {
-            System.out.println("[" + imported.get(0).getName() + "] 라이브러리에 포함되었을 가능성이 높습니다.");
+            System.out.println("'" + imported.get(0).getName() + "' 라이브러리에 포함되었을 가능성이 높습니다.");
              variableDTO.setImportId(imported.get(0).getImportId());
 
             String[] importPkg = imported.get(0).getName().split("\\.");
@@ -167,21 +167,37 @@ public class ConvertService {
                 return;
             }
             String variableTypeName = variableDTO.getVariableType().getChildNodes().get(0).toString();
-            System.out.println("[isImportPackage] : Find Class about '" + variableTypeName + "' variable");
+            System.out.println("[isProjectPackage] : Find Class about '" + variableTypeName + "' variable");
 
             Long findBlockId = getBlockIdByVariable(variableDTO);
 
+            PackageDTO packageDTO = packageDTOList.stream()
+                    .filter(pkg -> pkg.getBlockId().equals(findBlockId))
+                    .findFirst()
+                    .orElseGet(PackageDTO::new);
 
+            if(packageDTO.getPackageId() == null) {
+                return;
+            }
+            // 현재는 같은 패키지 이름을 가졌더라도 소스코드 별로 패키지가 생셩되기 때문에 list 로 담아뒀다.
+            List<PackageDTO> packaged = new ArrayList<>();
+            for(PackageDTO find : packageDTOList) {
+                if(packageDTO.getName().equals(find.getName())) {
+                    packaged.add(find);
+                }
+            }
 
             // 해당 패키지에서 선언한 클래스를 찾는다
-            BlockDTO findBlock = blockDTOList.stream().
-                    filter(block -> block.getBlockId().equals(variableDTO.getBlockId()))
-                    .findFirst()
-                    .orElseGet(null);
-
-
+            for(PackageDTO pkg : packaged) {
+                for(ClassDTO cls : classDTOList) {
+                    // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
+                    if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(variableTypeName)) {
+                        variableDTO.setClassId(cls.getClassId());
+                        break;
+                    }
+                }
+            }
         }
-
     }
 
     private BlockDTO visitAndBuildRootBlock(CompilationUnit cu) {

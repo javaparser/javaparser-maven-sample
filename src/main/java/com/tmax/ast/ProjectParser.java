@@ -2,9 +2,6 @@ package com.tmax.ast;
 
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.symbolsolver.JavaSymbolSolver;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.github.javaparser.symbolsolver.utils.SymbolSolverCollectionStrategy;
 import com.github.javaparser.utils.*;
 import com.tmax.ast.service.ConvertService;
@@ -71,7 +68,7 @@ public class ProjectParser {
         convertService.visitVariablesAndBuildClassId();
 
         System.out.println(convertService.getVariableDeclarationDTOList());
-        System.out.println(convertService.getFunctionDeclarationDTOList());
+        System.out.println(convertService.getMethodDeclarationDTOList());
 
         convertService.clear();
     }

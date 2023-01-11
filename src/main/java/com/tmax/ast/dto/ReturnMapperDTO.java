@@ -2,7 +2,7 @@ package com.tmax.ast.dto;
 
 public class ReturnMapperDTO {
     private Long returnMapperId;
-    private Long functionId;
+    private Long methodDeclId;
     private Long classId;
     private String type;
     private Position position;
@@ -15,12 +15,12 @@ public class ReturnMapperDTO {
         this.returnMapperId = returnMapperId;
     }
 
-    public Long getFunctionId() {
-        return functionId;
+    public Long getMethodDeclId() {
+        return methodDeclId;
     }
 
-    public void setFunctionId(Long functionId) {
-        this.functionId = functionId;
+    public void setMethodDeclId(Long methodDeclId) {
+        this.methodDeclId = methodDeclId;
     }
 
     public Long getClassId() {
@@ -50,11 +50,11 @@ public class ReturnMapperDTO {
     @Override
     public String toString() {
         return "ReturnMapperDTO{" +
-                "returnMapperId=" + returnMapperId +
-                ", functionId=" + functionId +
-                ", classId=" + classId +
-                ", type='" + type + '\'' +
-                ", position=" + position +
+                "returnMapperId: " + returnMapperId +
+                ", methodDeclId: " + methodDeclId +
+                ", classId: " + classId +
+                ", type: '" + type + '\'' +
+                ", position: " + position +
                 '}';
     }
 }

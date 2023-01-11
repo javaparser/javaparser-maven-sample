@@ -2,7 +2,7 @@ package com.tmax.ast.dto;
 
 public class ParameterDTO {
     private Long parameterId;
-    private Long functionId;
+    private Long methodDeclId;
     private Integer index;
     private String name;
     private String type;
@@ -16,12 +16,12 @@ public class ParameterDTO {
         this.parameterId = parameterId;
     }
 
-    public Long getFunctionId() {
-        return functionId;
+    public Long getMethodDeclId() {
+        return methodDeclId;
     }
 
-    public void setFunctionId(Long functionId) {
-        this.functionId = functionId;
+    public void setMethodDeclId(Long methodDeclId) {
+        this.methodDeclId = methodDeclId;
     }
 
     public Integer getIndex() {
@@ -59,12 +59,12 @@ public class ParameterDTO {
     @Override
     public String toString() {
         return "ParameterDTO{" +
-                "parameterId=" + parameterId +
-                ", functionId=" + functionId +
-                ", index=" + index +
-                ", name='" + name + '\'' +
-                ", type='" + type + '\'' +
-                ", position=" + position +
+                "parameterId: " + parameterId +
+                ", methodDeclarationId: " + methodDeclId +
+                ", index: " + index +
+                ", name: '" + name + '\'' +
+                ", type: '" + type + '\'' +
+                ", position: " + position +
                 '}';
     }
 }

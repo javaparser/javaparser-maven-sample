@@ -19,13 +19,13 @@ public class ConvertService {
     private final List<ImportDTO> importDTOList;
     private final List<ClassDTO> classDTOList;
     private final List<VariableDeclarationDTO> variableDeclarationDTOList;
-    private final List<FunctionDeclarationDTO> functionDeclarationDTOList;
+    private final List<MethodDeclarationDTO> methodDeclarationDTOList;
     private static Long blockId = 1L;
     private static Long packageId = 1L;
     private static Long importId = 1L;
     private static Long classId = 1L;
     private static Long variableDeclarationId = 1L;
-    private static Long functionDeclarationId = 1L;
+    private static Long methodDeclarationId = 1L;
     private static Long parameterId = 1L;
     public ConvertService() {
         this.blockDTOList = new ArrayList<>();
@@ -33,7 +33,7 @@ public class ConvertService {
         this.importDTOList = new ArrayList<>();
         this.classDTOList = new ArrayList<>();
         this.variableDeclarationDTOList = new ArrayList<>();
-        this.functionDeclarationDTOList = new ArrayList<>();
+        this.methodDeclarationDTOList = new ArrayList<>();
     }
     public List<BlockDTO> getBlockDTOList() {
         return this.blockDTOList;
@@ -50,8 +50,8 @@ public class ConvertService {
     public List<VariableDeclarationDTO> getVariableDeclarationDTOList() {
         return this.variableDeclarationDTOList;
     }
-    public List<FunctionDeclarationDTO> getFunctionDeclarationDTOList() {
-        return this.functionDeclarationDTOList;
+    public List<MethodDeclarationDTO> getMethodDeclarationDTOList() {
+        return this.methodDeclarationDTOList;
     }
 
     public void clear() {
@@ -60,7 +60,7 @@ public class ConvertService {
         this.importDTOList.clear();
         this.classDTOList.clear();
         this.variableDeclarationDTOList.clear();
-        this.functionDeclarationDTOList.clear();
+        this.methodDeclarationDTOList.clear();
     }
 
     public void visit(Node node) {
@@ -290,7 +290,7 @@ public class ConvertService {
             // 현재 상위 block 에서 선언되는 것들.
             blockDTO = parentBlockDTO;
             // 함수 및 생성자 선언 시 build
-            buildFunctionDecl(functionDeclarationId++, blockDTO.getBlockId(), node, nodeType);
+            buildMethodDeclaration(methodDeclarationId++, blockDTO.getBlockId(), node, nodeType);
         }
         else if(nodeType.equals("BlockStmt")) {
             blockDTO = buildBlockDTO(blockId, parentBlockDTO.getDepth() + 1, parentBlockDTO.getBlockId(), nodeType, node);
@@ -308,15 +308,15 @@ public class ConvertService {
         }
     }
 
-    private void buildFunctionDecl(Long functionDeclarationId, Long blockId, Node node, String nodeType) {
-        FunctionDeclarationDTO functionDeclarationDTO = new FunctionDeclarationDTO();
+    private void buildMethodDeclaration(Long methodDeclarationId, Long blockId, Node node, String nodeType) {
+        MethodDeclarationDTO methodDeclarationDTO = new MethodDeclarationDTO();
         ReturnMapperDTO returnMapperDTO = new ReturnMapperDTO();
         List<ParameterDTO> parameters = new ArrayList<>();
         List<Node> childNodes = node.getChildNodes();
 
         String modifierKeyword = "";
         String accessModifierKeyword = "";
-        String functionName = "";
+        String methodName = "";
 
         Long returnId = 1L;
         Integer parameterIndex = 1;
@@ -336,14 +336,14 @@ public class ConvertService {
                 }
             } else if(childNodeTypeName.equals("SimpleName")) {
                 SimpleName simpleName = (SimpleName) childNode;
-                functionName = simpleName.asString();
+                methodName = simpleName.asString();
             } else if(childNodeTypeName.equals("Parameter")) {
                 ParameterDTO parameterDTO = new ParameterDTO();
 
                 Parameter parameterNode = (Parameter) childNode;
 
                 parameterDTO.setParameterId(parameterId++);
-                parameterDTO.setFunctionId(functionDeclarationId);
+                parameterDTO.setMethodDeclId(methodDeclarationId);
                 parameterDTO.setIndex(parameterIndex++);
                 parameterDTO.setName(parameterNode.getName().asString());
                 parameterDTO.setType(parameterNode.getType().asString());
@@ -362,7 +362,7 @@ public class ConvertService {
             } else if(childNodeTypeName.matches("(.*)Type")) {
 
                 returnMapperDTO.setReturnMapperId(returnId++);
-                returnMapperDTO.setFunctionId(functionDeclarationId);
+                returnMapperDTO.setMethodDeclId(methodDeclarationId);
                 returnMapperDTO.setClassId(0L);
                 returnMapperDTO.setType(childNodeTypeName);
                 returnMapperDTO.setPosition(
@@ -377,17 +377,17 @@ public class ConvertService {
             }
         }
 
-        functionDeclarationDTO.setFunctionId(functionDeclarationId);
-        functionDeclarationDTO.setBlockId(blockId);
-        functionDeclarationDTO.setName(functionName);
-        functionDeclarationDTO.setModifier(modifierKeyword);
-        functionDeclarationDTO.setAccessModifier(accessModifierKeyword);
-        // add to functionDeclarationDTO
-        functionDeclarationDTO.setReturnMapper(returnMapperDTO);
-        functionDeclarationDTO.setParameters(parameters);
+        methodDeclarationDTO.setMethodDeclId(methodDeclarationId);
+        methodDeclarationDTO.setBlockId(blockId);
+        methodDeclarationDTO.setName(methodName);
+        methodDeclarationDTO.setModifier(modifierKeyword);
+        methodDeclarationDTO.setAccessModifier(accessModifierKeyword);
+        // add to methodDeclarationDTO
+        methodDeclarationDTO.setReturnMapper(returnMapperDTO);
+        methodDeclarationDTO.setParameters(parameters);
 
-        functionDeclarationDTO.setNode(node);
-        functionDeclarationDTO.setPosition(
+        methodDeclarationDTO.setNode(node);
+        methodDeclarationDTO.setPosition(
                 new Position(
                         node.getRange().get().begin.line,
                         node.getRange().get().begin.column,
@@ -396,7 +396,7 @@ public class ConvertService {
                 )
         );
 
-        functionDeclarationDTOList.add(functionDeclarationDTO);
+        methodDeclarationDTOList.add(methodDeclarationDTO);
     }
 
 

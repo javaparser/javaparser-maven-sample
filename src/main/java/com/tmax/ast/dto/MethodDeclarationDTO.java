@@ -4,8 +4,8 @@ import com.github.javaparser.ast.Node;
 
 import java.util.List;
 
-public class FunctionDeclarationDTO {
-    private Long functionId;
+public class MethodDeclarationDTO {
+    private Long methodDeclId;
     private Long blockId;
     private String name;
     private String modifier;
@@ -15,12 +15,12 @@ public class FunctionDeclarationDTO {
     private Node node;
     private Position position;
 
-    public Long getFunctionId() {
-        return functionId;
+    public Long getMethodDeclId() {
+        return methodDeclId;
     }
 
-    public void setFunctionId(Long functionId) {
-        this.functionId = functionId;
+    public void setMethodDeclId(Long methodDeclId) {
+        this.methodDeclId = methodDeclId;
     }
 
     public Long getBlockId() {
@@ -89,15 +89,15 @@ public class FunctionDeclarationDTO {
 
     @Override
     public String toString() {
-        return "FunctionDeclarationDTO{" +
-                "functionId=" + functionId +
-                ", blockId=" + blockId +
-                ", name='" + name + '\'' +
-                ", modifier='" + modifier + '\'' +
-                ", accessModifier='" + accessModifier + '\'' +
-                ", returnMappers=" + returnMapper +
-                ", parameters=" + parameters +
-                ", position=" + position +
+        return "MethodDeclarationDTO{" +
+                "methodDeclarationId: " + methodDeclId +
+                ", blockId: " + blockId +
+                ", name: '" + name + '\'' +
+                ", modifier: '" + modifier + '\'' +
+                ", accessModifier: '" + accessModifier + '\'' +
+                ", returnMappers: " + returnMapper +
+                ", parameters: " + parameters +
+                ", position: " + position +
                 "}\n";
     }
 }

@@ -66,8 +66,8 @@ public class BlockDTO{
                 ", depth : " + depth +
                 ", blockType : '" + blockType + '\'' +
                 ", Position : '" + position + '\'' +
-                "}\n";
-//                ", \nblockNode : \n" + blockNode +
 //                "}\n";
+//                ", \nblockNode : \n" + blockNode +
+                "}\n";
     }
 }

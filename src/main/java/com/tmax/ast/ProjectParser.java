@@ -45,17 +45,17 @@ public class ProjectParser {
                     // cu를 활용
                     String fileName = cu.getStorage().get().getFileName();
 
-                    // 전체 다해보기
-                    System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
-                    convertService.visit(cu);
+//                    // 전체 다해보기
+//                    System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
+//                    convertService.visit(cu);
 
                     // 부분만 해보기
-//                    if(fileName.equals("Game.java") || fileName.equals("Judgement.java")) {
-////                    if(fileName.equals("Computer.java") || fileName.equals("RandomNumberGenerator.java") ||
-////                            fileName.equals("NumberGenerator.java") || fileName.equals("FixedNumberGenerator.java")) {
-//                        System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
-//                        convertService.visit(cu);
-//                    }
+                    if(fileName.equals("Game.java") || fileName.equals("Judgement.java")) {
+//                    if(fileName.equals("Computer.java") || fileName.equals("RandomNumberGenerator.java") ||
+//                            fileName.equals("NumberGenerator.java") || fileName.equals("FixedNumberGenerator.java")) {
+                        System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
+                        convertService.visit(cu);
+                    }
 
                     //outputService.dotPrinter(fileName, cu);
                 }
@@ -71,6 +71,7 @@ public class ProjectParser {
         convertService.visitVariablesAndBuildClassId();
 
         System.out.println(convertService.getVariableDeclarationDTOList());
+        System.out.println(convertService.getFunctionDeclarationDTOList());
 
         convertService.clear();
     }

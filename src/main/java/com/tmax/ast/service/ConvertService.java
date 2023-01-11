@@ -6,6 +6,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.type.Type;
 import com.tmax.ast.dto.*;
@@ -18,17 +19,21 @@ public class ConvertService {
     private final List<ImportDTO> importDTOList;
     private final List<ClassDTO> classDTOList;
     private final List<VariableDeclarationDTO> variableDeclarationDTOList;
+    private final List<FunctionDeclarationDTO> functionDeclarationDTOList;
     private static Long blockId = 1L;
     private static Long packageId = 1L;
     private static Long importId = 1L;
     private static Long classId = 1L;
-    private static Long variableId = 1L;
+    private static Long variableDeclarationId = 1L;
+    private static Long functionDeclarationId = 1L;
+    private static Long parameterId = 1L;
     public ConvertService() {
         this.blockDTOList = new ArrayList<>();
         this.packageDTOList = new ArrayList<>();
         this.importDTOList = new ArrayList<>();
         this.classDTOList = new ArrayList<>();
         this.variableDeclarationDTOList = new ArrayList<>();
+        this.functionDeclarationDTOList = new ArrayList<>();
     }
     public List<BlockDTO> getBlockDTOList() {
         return this.blockDTOList;
@@ -45,12 +50,17 @@ public class ConvertService {
     public List<VariableDeclarationDTO> getVariableDeclarationDTOList() {
         return this.variableDeclarationDTOList;
     }
+    public List<FunctionDeclarationDTO> getFunctionDeclarationDTOList() {
+        return this.functionDeclarationDTOList;
+    }
+
     public void clear() {
         this.blockDTOList.clear();
         this.packageDTOList.clear();
         this.importDTOList.clear();
         this.classDTOList.clear();
         this.variableDeclarationDTOList.clear();
+        this.functionDeclarationDTOList.clear();
     }
 
     public void visit(Node node) {
@@ -81,13 +91,6 @@ public class ConvertService {
             // 2. 그게 아니라면, 같은 프로젝트 내에 존재하는 클래스 변수
             isProjectPackage(variableDeclarationDTO);
         }
-
-        for(VariableDeclarationDTO variableDeclarationDTO : variableDeclarationDTOList) {
-            if(variableDeclarationDTO.getImportId().equals(0L) || variableDeclarationDTO.getClassId().equals(0L)) {
-                System.out.print(variableDeclarationDTO);
-            }
-        }
-        System.out.println();
     }
 
     private void isImportPackage(VariableDeclarationDTO variableDeclarationDTO) {
@@ -274,18 +277,20 @@ public class ConvertService {
         // 클래스 바로 아래에서 변수를 선언하는 멤버 필드
         else if(nodeType.equals("FieldDeclaration")) {
             blockDTO = parentBlockDTO;
-            buildVariableInMemberField(variableId++, blockDTO.getBlockId(), node);
+            buildVariableDeclInMemberField(variableDeclarationId++, blockDTO.getBlockId(), node);
         }
         // 함수 내에서 선언하는 변수
         else if(nodeType.equals("VariableDeclarationExpr")) {
             blockDTO = parentBlockDTO;
-            buildVariableInMethod(variableId++, blockDTO.getBlockId(), node);
+            buildVariableDeclInMethod(variableDeclarationId++, blockDTO.getBlockId(), node);
         }
-        else if(nodeType.equals("MethodDeclaration") || nodeType.equals("ConstructorDeclaration")) {
+        // || nodeType.equals("ConstructorDeclaration")
+        else if(nodeType.equals("MethodDeclaration")) {
             // 내부에 BlockStmt 가 존재하여 별도의 Block 을 생성하지는 않음
             // 현재 상위 block 에서 선언되는 것들.
             blockDTO = parentBlockDTO;
             // 함수 및 생성자 선언 시 build
+            buildFunctionDecl(functionDeclarationId++, blockDTO.getBlockId(), node, nodeType);
         }
         else if(nodeType.equals("BlockStmt")) {
             blockDTO = buildBlockDTO(blockId, parentBlockDTO.getDepth() + 1, parentBlockDTO.getBlockId(), nodeType, node);
@@ -303,7 +308,99 @@ public class ConvertService {
         }
     }
 
-    private void buildVariableInMethod(Long variableId, Long blockId, Node node) {
+    private void buildFunctionDecl(Long functionDeclarationId, Long blockId, Node node, String nodeType) {
+        FunctionDeclarationDTO functionDeclarationDTO = new FunctionDeclarationDTO();
+        ReturnMapperDTO returnMapperDTO = new ReturnMapperDTO();
+        List<ParameterDTO> parameters = new ArrayList<>();
+        List<Node> childNodes = node.getChildNodes();
+
+        String modifierKeyword = "";
+        String accessModifierKeyword = "";
+        String functionName = "";
+
+        Long returnId = 1L;
+        Integer parameterIndex = 1;
+
+        for(Node childNode : childNodes) {
+            String childNodeTypeName = childNode.getMetaModel().getTypeName();
+            if(childNodeTypeName.equals("Modifier")) {
+                Modifier modifier = (Modifier) childNode;
+                // 접근 제어자 분별
+                if(modifier.getKeyword().equals(Modifier.Keyword.DEFAULT) ||
+                        modifier.getKeyword().equals(Modifier.Keyword.PUBLIC) ||
+                        modifier.getKeyword().equals(Modifier.Keyword.PROTECTED) ||
+                        modifier.getKeyword().equals(Modifier.Keyword.PRIVATE) ) {
+                    accessModifierKeyword = modifier.getKeyword().asString();
+                } else {
+                    modifierKeyword = modifier.getKeyword().asString();
+                }
+            } else if(childNodeTypeName.equals("SimpleName")) {
+                SimpleName simpleName = (SimpleName) childNode;
+                functionName = simpleName.asString();
+            } else if(childNodeTypeName.equals("Parameter")) {
+                ParameterDTO parameterDTO = new ParameterDTO();
+
+                Parameter parameterNode = (Parameter) childNode;
+
+                parameterDTO.setParameterId(parameterId++);
+                parameterDTO.setFunctionId(functionDeclarationId);
+                parameterDTO.setIndex(parameterIndex++);
+                parameterDTO.setName(parameterNode.getName().asString());
+                parameterDTO.setType(parameterNode.getType().asString());
+                parameterDTO.setPosition(
+                        new Position(
+                                parameterNode.getRange().get().begin.line,
+                                parameterNode.getRange().get().begin.column,
+                                parameterNode.getRange().get().end.line,
+                                parameterNode.getRange().get().end.column
+                        )
+                );
+
+                parameters.add(parameterDTO);
+
+
+            } else if(childNodeTypeName.matches("(.*)Type")) {
+
+                returnMapperDTO.setReturnMapperId(returnId++);
+                returnMapperDTO.setFunctionId(functionDeclarationId);
+                returnMapperDTO.setClassId(0L);
+                returnMapperDTO.setType(childNodeTypeName);
+                returnMapperDTO.setPosition(
+                        new Position(
+                                childNode.getRange().get().begin.line,
+                                childNode.getRange().get().begin.column,
+                                childNode.getRange().get().end.line,
+                                childNode.getRange().get().end.column
+                        )
+                );
+
+            }
+        }
+
+        functionDeclarationDTO.setFunctionId(functionDeclarationId);
+        functionDeclarationDTO.setBlockId(blockId);
+        functionDeclarationDTO.setName(functionName);
+        functionDeclarationDTO.setModifier(modifierKeyword);
+        functionDeclarationDTO.setAccessModifier(accessModifierKeyword);
+        // add to functionDeclarationDTO
+        functionDeclarationDTO.setReturnMapper(returnMapperDTO);
+        functionDeclarationDTO.setParameters(parameters);
+
+        functionDeclarationDTO.setNode(node);
+        functionDeclarationDTO.setPosition(
+                new Position(
+                        node.getRange().get().begin.line,
+                        node.getRange().get().begin.column,
+                        node.getRange().get().end.line,
+                        node.getRange().get().end.column
+                )
+        );
+
+        functionDeclarationDTOList.add(functionDeclarationDTO);
+    }
+
+
+    private void buildVariableDeclInMethod(Long variableId, Long blockId, Node node) {
         VariableDeclarationDTO variableDeclarationDTO = new VariableDeclarationDTO();
         VariableDeclarationExpr variableDeclarationExpr = (VariableDeclarationExpr) node;
 
@@ -362,7 +459,7 @@ public class ConvertService {
         variableDeclarationDTOList.add(variableDeclarationDTO);
     }
 
-    private void buildVariableInMemberField(Long variableId, Long blockId, Node node) {
+    private void buildVariableDeclInMemberField(Long variableId, Long blockId, Node node) {
         VariableDeclarationDTO variableDeclarationDTO = new VariableDeclarationDTO();
         FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 

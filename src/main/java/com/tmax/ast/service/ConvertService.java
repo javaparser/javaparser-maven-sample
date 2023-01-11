@@ -162,14 +162,14 @@ public class ConvertService {
         String variableTypeName = variableDeclarationDTO.getVariableType().getChildNodes().get(0).toString();
         System.out.println("[isImportPackage] : Find Class about '" + variableDeclarationDTO.getType() + " " + variableDeclarationDTO.getName() + "' variable");
 
-        Long findBlockId = getBlockIdByVariable(variableDeclarationDTO);
+        Long rootBlockId = findRootBlockIdByVariable(variableDeclarationDTO);
 
         // TODO : import 패키지 중 *로 선언하는 것이 있으면 해당 라이브러리 내 모든 패키지->소스코드들을 다 까봐야 한다.
 
         // import 패키지의 클래스라면 import Id를 추가
         for(ImportDTO importDTO : importService.getImportDTOList()) {
             String[] importPkg = importDTO.getName().split("\\.");
-            if(importDTO.getBlockId().equals(findBlockId) && variableTypeName.equals(importPkg[importPkg.length-1])){
+            if(importDTO.getBlockId().equals(rootBlockId) && variableTypeName.equals(importPkg[importPkg.length-1])){
                 imported.add(importDTO);
             }
         }
@@ -223,10 +223,10 @@ public class ConvertService {
             String variableTypeName = variableDeclarationDTO.getVariableType().getChildNodes().get(0).toString();
             System.out.println("[isProjectPackage] : Find Class about '" + variableDeclarationDTO.getType() + " " + variableDeclarationDTO.getName() + "' variable");
 
-            Long findBlockId = getBlockIdByVariable(variableDeclarationDTO);
+            Long rootBlockId = findRootBlockIdByVariable(variableDeclarationDTO);
 
             PackageDTO packageDTO = packageService.getPackageDTOList().stream()
-                    .filter(pkg -> pkg.getBlockId().equals(findBlockId))
+                    .filter(pkg -> pkg.getBlockId().equals(rootBlockId))
                     .findFirst()
                     .orElseGet(PackageDTO::new);
 
@@ -257,8 +257,8 @@ public class ConvertService {
         return false;
     }
 
-    // getBlockIdByVariable: 변수가 선언된 소스코드의 최상단 블락의 위치를 반환 (변수가 선언된 블락 id를 가지고, 해당 블락의 최상단 블락을 찾아 리턴)
-    private Long getBlockIdByVariable(VariableDeclarationDTO variableDeclarationDTO) {
+    // findRootBlockIdByVariable: 변수가 선언된 소스코드의 최상단 블락의 위치를 반환 (변수가 선언된 블락 id를 가지고, 해당 블락의 최상단 블락을 찾아 리턴)
+    private Long findRootBlockIdByVariable(VariableDeclarationDTO variableDeclarationDTO) {
         Long findBlockId = variableDeclarationDTO.getBlockId();
         while(true) {
             Long finalFindBlockId = findBlockId;

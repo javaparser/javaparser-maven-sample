@@ -60,13 +60,14 @@ public class ProjectParser {
             //saveSourceCodesInOutputDir(sourceRoot);
 
         }
+        convertService.visitVariablesAndBuildClassId();
+        convertService.visitMethodsAndBuildClassId();
+
+        // 출력
         System.out.println(convertService.getBlockDTOList());
         System.out.println(convertService.getPackageDTOList());
         System.out.println(convertService.getImportDTOList());
         System.out.println(convertService.getClassDTOList());
-
-        convertService.visitVariablesAndBuildClassId();
-
         System.out.println(convertService.getVariableDeclarationDTOList());
         System.out.println(convertService.getMethodDeclarationDTOList());
 

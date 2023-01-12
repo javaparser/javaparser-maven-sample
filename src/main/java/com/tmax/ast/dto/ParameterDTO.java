@@ -1,11 +1,14 @@
 package com.tmax.ast.dto;
 
+import com.github.javaparser.ast.Node;
+
 public class ParameterDTO {
     private Long parameterId;
     private Long methodDeclId;
     private Integer index;
     private String name;
     private String type;
+    private Node node;
     private Position position;
 
     public Long getParameterId() {
@@ -46,6 +49,14 @@ public class ParameterDTO {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Node getNode() {
+        return node;
+    }
+
+    public void setNode(Node node) {
+        this.node = node;
     }
 
     public Position getPosition() {

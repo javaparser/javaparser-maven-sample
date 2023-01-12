@@ -8,4 +8,5 @@ public class GeneratorIdentifier {
     public static Long variableDeclarationId = 1L;
     public static Long methodDeclarationId = 1L;
     public static Long parameterId = 1L;
+    public static Long returnMapperId = 1L;
 }

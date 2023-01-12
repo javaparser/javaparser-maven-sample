@@ -124,11 +124,11 @@ public class VariableDeclarationDTO {
                 ", classId : " + classId +
                 ", importId : " + importId +
                 ", name : '" + name + '\'' +
+                "', nodeType: '" + node.getMetaModel().getTypeName() +
                 ", modifier : '" + modifier + '\'' +
                 ", accessModifier : '" + accessModifier + '\'' +
                 ", type : '" + type + '\'' +
 //                ", variableType : " + variableType.getClass().getSimpleName() +
-//                ", node : " + node.getClass().getSimpleName() +
                 ", initializer : " + initializer +
                 ", Position : '" + position +
                 "}\n";

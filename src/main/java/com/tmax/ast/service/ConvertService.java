@@ -2,6 +2,8 @@ package com.tmax.ast.service;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.type.PrimitiveType;
 import com.tmax.ast.dto.*;
 import com.tmax.ast.service.management.*;
 
@@ -111,8 +113,8 @@ public class ConvertService {
             blockDTO = parentBlockDTO;
             variableService.buildVariableDeclInMethod(variableDeclarationId++, blockDTO.getBlockId(), node);
         }
-        // || nodeType.equals("ConstructorDeclaration")
-        else if(nodeType.equals("MethodDeclaration")) {
+        //
+        else if(nodeType.equals("MethodDeclaration") || nodeType.equals("ConstructorDeclaration")) {
             // 내부에 BlockStmt 가 존재하여 별도의 Block 을 생성하지는 않음
             // 현재 상위 block 에서 선언되는 것들.
             blockDTO = parentBlockDTO;
@@ -127,13 +129,15 @@ public class ConvertService {
         }
         List<Node> childNodes = node.getChildNodes();
         for(Node childNode :  childNodes) {
-            if(!childNode.getMetaModel().getTypeName().equals("SimpleName")) {
+            if(!childNode.getMetaModel().getTypeName().equals("SimpleName") ||
+            !childNode.getMetaModel().getTypeName().equals("Modifier")) {
                 visitAndBuild(childNode, blockDTO);
             }
         }
     }
 
     public void visitVariablesAndBuildClassId() {
+        // TODO : 선언한 변수가 다른(하위) 클래스 객체를 생성
         for(VariableDeclarationDTO variableDeclarationDTO : getVariableDeclarationDTOList()) {
             // 선언한 변수가 primitive(원시) 타입이면 class id 는 0으로
             if(variableDeclarationDTO.getVariableType().isPrimitiveType()) {
@@ -150,6 +154,21 @@ public class ConvertService {
                     System.out.println("'" + variableDeclarationDTO.getName() + "' 변수에 대한 클래스를 발견하지 못했습니다.");
                 }
             }
+        }
+    }
+
+    public void visitMethodsAndBuildClassId() {
+        for(MethodDeclarationDTO methodDeclarationDTO : getMethodDeclarationDTOList()) {
+            ReturnMapperDTO returnMapperDTO = methodDeclarationDTO.getReturnMapper();
+
+            if(returnMapperDTO.getReturnMapperId() == null) {
+                continue;
+            } else if(returnMapperDTO.getNode().getMetaModel().getTypeName().equals("VoidType") ||
+                    returnMapperDTO.getNode().getMetaModel().getTypeName().equals("PrimitiveType")) {
+                continue;
+            }
+            // TODO: 메소드 결과 값을 반환하는 타입 클래스의 id를 부여 (ex. public List<> getList() -> return List;)
+
         }
     }
 

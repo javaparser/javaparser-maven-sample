@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.tmax.ast.config.GeneratorIdentifier.parameterId;
+import static com.tmax.ast.config.GeneratorIdentifier.returnMapperId;
 
 public class MethodService {
 
@@ -40,7 +41,6 @@ public class MethodService {
         String accessModifierKeyword = "";
         String methodName = "";
 
-        Long returnId = 1L;
         Integer parameterIndex = 1;
 
         for(Node childNode : childNodes) {
@@ -69,6 +69,7 @@ public class MethodService {
                 parameterDTO.setIndex(parameterIndex++);
                 parameterDTO.setName(parameterNode.getName().asString());
                 parameterDTO.setType(parameterNode.getType().asString());
+                parameterDTO.setNode(parameterNode);
                 parameterDTO.setPosition(
                         new Position(
                                 parameterNode.getRange().get().begin.line,
@@ -82,11 +83,13 @@ public class MethodService {
 
 
             } else if(childNodeTypeName.matches("(.*)Type")) {
+                String returnValueTypeName = childNode.toString();
 
-                returnMapperDTO.setReturnMapperId(returnId++);
+                returnMapperDTO.setReturnMapperId(returnMapperId++);
                 returnMapperDTO.setMethodDeclId(methodDeclarationId);
                 returnMapperDTO.setClassId(0L);
-                returnMapperDTO.setType(childNodeTypeName);
+                returnMapperDTO.setType(returnValueTypeName);
+                returnMapperDTO.setNode(childNode);
                 returnMapperDTO.setPosition(
                         new Position(
                                 childNode.getRange().get().begin.line,

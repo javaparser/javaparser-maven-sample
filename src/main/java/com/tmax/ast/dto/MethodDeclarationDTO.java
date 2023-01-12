@@ -93,6 +93,7 @@ public class MethodDeclarationDTO {
                 "methodDeclarationId: " + methodDeclId +
                 ", blockId: " + blockId +
                 ", name: '" + name + '\'' +
+                "', nodeType: '" + node.getMetaModel().getTypeName() +
                 ", modifier: '" + modifier + '\'' +
                 ", accessModifier: '" + accessModifier + '\'' +
                 ", returnMappers: " + returnMapper +

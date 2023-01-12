@@ -1,10 +1,13 @@
 package com.tmax.ast.dto;
 
+import com.github.javaparser.ast.Node;
+
 public class ReturnMapperDTO {
     private Long returnMapperId;
     private Long methodDeclId;
     private Long classId;
     private String type;
+    private Node node;
     private Position position;
 
     public Long getReturnMapperId() {
@@ -37,6 +40,14 @@ public class ReturnMapperDTO {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Node getNode() {
+        return node;
+    }
+
+    public void setNode(Node node) {
+        this.node = node;
     }
 
     public Position getPosition() {

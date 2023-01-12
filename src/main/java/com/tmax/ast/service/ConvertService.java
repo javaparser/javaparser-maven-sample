@@ -2,8 +2,11 @@ package com.tmax.ast.service;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.type.PrimitiveType;
+
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.MethodReferenceExpr;
 import com.tmax.ast.dto.*;
 import com.tmax.ast.service.management.*;
 
@@ -80,10 +83,10 @@ public class ConvertService {
                     importService.buildImport(importId++, rootBlockDTO.getBlockId(), node);
                     break;
                 case "ClassOrInterfaceDeclaration":
-                    classService.buildClass(classId++, rootBlockDTO.getBlockId(), packageDTO.getPackageId(), node);
+                    classService.buildClass(classId++, rootBlockDTO.getBlockId(), packageDTO != null ? packageDTO.getPackageId() : 0L, node);
                     break;
                 case "EnumDeclaration":
-                    classService.buildEnum(classId++, rootBlockDTO.getBlockId(), packageDTO.getPackageId(), node);
+                    classService.buildEnum(classId++, rootBlockDTO.getBlockId(), packageDTO != null ? packageDTO.getPackageId() : 0L, node);
                     break;
                 // 커스텀 어노테이션 제작 시
                 case "AnnotationDeclaration":
@@ -137,7 +140,7 @@ public class ConvertService {
     }
 
     public void visitVariablesAndBuildClassId() {
-        // TODO : 선언한 변수가 다른(하위) 클래스 객체를 생성
+        // TODO : 선언한 객체 변수가 다른(하위) 클래스 객체를 initialize 했을 때, initializer 타입에 맞는 클래스의 id를 부여할 수 있도록 수정
         for(VariableDeclarationDTO variableDeclarationDTO : getVariableDeclarationDTOList()) {
             // 선언한 변수가 primitive(원시) 타입이면 class id 는 0으로
             if(variableDeclarationDTO.getVariableType().isPrimitiveType()) {
@@ -151,9 +154,11 @@ public class ConvertService {
                 boolean isProject = checkVariableIfProjectPackage(variableDeclarationDTO);
 
                 if(!isProject) {
-                    System.out.println("'" + variableDeclarationDTO.getName() + "' 변수에 대한 클래스를 발견하지 못했습니다.");
+                    System.out.println("[visitVariablesAndBuildClassId] : 변수 '" + variableDeclarationDTO.getName() + "'에 대한 클래스를 발견하지 못했습니다.");
                 }
             }
+            System.out.println();
+            // TODO : 외부 패키지를 import 한 경우, 패키지 클래스를 기반으로 선언한 class id를 찾아 매핑하는 작업
         }
     }
 
@@ -167,82 +172,59 @@ public class ConvertService {
                     returnMapperDTO.getNode().getMetaModel().getTypeName().equals("PrimitiveType")) {
                 continue;
             }
-            // TODO: 메소드 결과 값을 반환하는 타입 클래스의 id를 부여 (ex. public List<> getList() -> return List;)
 
+            boolean isImport = checkReturnIfImportPackage(returnMapperDTO, methodDeclarationDTO.getBlockId());
+
+            if(!isImport) {
+                boolean isProject = checkReturnIfProjectPackage(returnMapperDTO, methodDeclarationDTO.getBlockId());
+
+                if(!isProject) {
+                    System.out.println("[visitMethodsAndBuildClassId] : 리턴 타입 '" + returnMapperDTO.getType() + "'에 대한 클래스를 발견하지 못했습니다.");
+                }
+            }
+            System.out.println();
+            // TODO : 외부 패키지를 import 한 경우, 패키지 클래스를 기반으로 선언한 class id를 찾아 매핑하는 작업
         }
     }
 
-    private boolean checkVariableIfImportPackage(VariableDeclarationDTO variableDeclarationDTO) {
-        List<ImportDTO> imported = new ArrayList<>();
-        if(variableDeclarationDTO.getVariableType().getChildNodes().size() == 0) {
-            System.out.println("'" + variableDeclarationDTO.getVariableType().asString() + "'는 하위 노드가 존재하지 않습니다.");
-            return false;
-        }
-        String variableTypeName = variableDeclarationDTO.getVariableType().getChildNodes().get(0).toString();
-        System.out.println("[isImportPackage] : Find Class about '" + variableDeclarationDTO.getType() + " " + variableDeclarationDTO.getName() + "' variable");
+    private boolean checkReturnIfImportPackage(ReturnMapperDTO returnMapperDTO, Long blockId) {
+        System.out.println("[checkReturnIfImportPackage] : Find Class about '" + returnMapperDTO.getType() + "' return mapper");
+        Long rootBlockId = findRootBlockIdByCurrentBlockId(blockId);
 
-        Long rootBlockId = findRootBlockIdByVariable(variableDeclarationDTO);
+        String returnTypeName = returnMapperDTO.getType().replace(">", "").split("<")[0];
 
-        // TODO : import 패키지 중 *로 선언하는 것이 있으면 해당 라이브러리 내 모든 패키지->소스코드들을 다 까봐야 한다.
-
-        // import 패키지의 클래스라면 import Id를 추가
-        for(ImportDTO importDTO : importService.getImportDTOList()) {
-            String[] importPkg = importDTO.getName().split("\\.");
-            if(importDTO.getBlockId().equals(rootBlockId) && variableTypeName.equals(importPkg[importPkg.length-1])){
-                imported.add(importDTO);
-            }
-        }
+        List<ImportDTO> imported = findImportsByRootBlockIdAndTypeName(rootBlockId, returnTypeName);
 
         if(imported.size() == 1) {
-            System.out.println("[isImportPackage] : import 에서 '" + imported.get(0).getName() + "'를 발견했습니다.");
-            variableDeclarationDTO.setImportId(imported.get(0).getImportId());
-
-            String[] importPkg = imported.get(0).getName().split("\\.");
-            StringBuilder importPkgPath = new StringBuilder();
-            for(int i = 0; i < importPkg.length-1; i++) {
-                importPkgPath.append(importPkg[i]);
-                if(i != importPkg.length-2) {
-                    importPkgPath.append(".");
-                }
-            }
-            String importPkgClass = importPkg[importPkg.length-1];
-
-            for(PackageDTO packageDTO : packageService.getPackageDTOList()) {
-                if(packageDTO.getName().equals(importPkgPath.toString())) {
-                    for(ClassDTO classDTO : classService.getClassDTOList()) {
-                        if(classDTO.getName().equals(importPkgClass)) {
-                            System.out.println("[isImportPackage] : '"+ imported.get(0).getName() +"'에 대한 클래스를 발견하여 '"+ variableDeclarationDTO.getName() +"'의 class id '" + classDTO.getClassId() +"'를 부여합니다");
-                            variableDeclarationDTO.setClassId(classDTO.getClassId());
-                            return true;
-                        }
-                    }
-                }
-            }
-
-        } else if(imported.size() > 1){
-            System.out.println("[isImportPackage] : 예상되는 import 패키지가 너무 많습니다.");
-            for(ImportDTO importDTO : imported) {
-                System.out.print("[isImportPackage] : [Expected]: "+importDTO);
-            }
-            return false;
-        } else {
-            System.out.println("[isImportPackage] : import 패키지를 찾지 못했습니다.");
-            return false;
-        }
-        return false;
-    }
-
-    private boolean checkVariableIfProjectPackage(VariableDeclarationDTO variableDeclarationDTO) {
-        if(variableDeclarationDTO.getClassId().equals(0L)) {
-            // 선언한 변수가 속한 패키지를 찾는다
-            if(variableDeclarationDTO.getVariableType().getChildNodes().size() == 0) {
-                System.out.println("'" + variableDeclarationDTO.getVariableType().asString() + "'는 하위 노드가 존재하지 않습니다.");
+            System.out.println("[checkReturnIfImportPackage] : import 에서 '" + imported.get(0).getName() + "'를 발견했습니다.");
+            Map<String, String> importMapper = parseImportClassNameOrImportPackageName(imported.get(0));
+            if(importMapper.isEmpty()){
                 return false;
             }
-            String variableTypeName = variableDeclarationDTO.getVariableType().getChildNodes().get(0).toString();
-            System.out.println("[isProjectPackage] : Find Class about '" + variableDeclarationDTO.getType() + " " + variableDeclarationDTO.getName() + "' variable");
 
-            Long rootBlockId = findRootBlockIdByVariable(variableDeclarationDTO);
+            returnMapperDTO.setClassId(findClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), returnMapperDTO.getType()));
+            return true;
+        }
+        else if(imported.size() > 1){
+            System.out.println("[checkReturnIfImportPackage] : 예상되는 import 패키지가 너무 많습니다.");
+            for(ImportDTO importDTO : imported) {
+                System.out.print("[checkReturnIfImportPackage] : [Expected]: "+ importDTO);
+            }
+            return false;
+        }
+        else {
+            System.out.println("[checkReturnIfImportPackage] : import 패키지를 찾지 못했습니다.");
+            return false;
+        }
+    }
+
+    private boolean checkReturnIfProjectPackage(ReturnMapperDTO returnMapperDTO, Long blockId) {
+        if(returnMapperDTO.getClassId().equals(0L)) {
+
+            String returnTypeName = returnMapperDTO.getType().replace(">", "").split("<")[0];
+            System.out.println("[checkReturnIfProjectPackage] : Find Class about '" + returnMapperDTO.getType() + "' return mapper");
+
+            Long rootBlockId = findRootBlockIdByCurrentBlockId(blockId);
 
             PackageDTO packageDTO = packageService.getPackageDTOList().stream()
                     .filter(pkg -> pkg.getBlockId().equals(rootBlockId))
@@ -250,7 +232,91 @@ public class ConvertService {
                     .orElseGet(PackageDTO::new);
 
             if(packageDTO.getPackageId() == null) {
-                System.out.println("[오류] : 패키지의 id는 null이 될 수 없습니다.");
+                System.out.println("[checkReturnIfProjectPackage] : ERROR - 패키지의 id는 NULL 될 수 없습니다.");
+                return false;
+            }
+            // 현재는 같은 패키지 이름을 가졌더라도 소스코드 별로 패키지가 생셩되기 때문에 list 로 담아뒀다.
+            List<PackageDTO> packaged = new ArrayList<>();
+            for(PackageDTO find : packageService.getPackageDTOList()) {
+                if(packageDTO.getName().equals(find.getName())) {
+                    packaged.add(find);
+                }
+            }
+
+            // 해당 패키지에서 선언한 클래스를 찾는다
+            for(PackageDTO pkg : packaged) {
+                for(ClassDTO cls : classService.getClassDTOList()) {
+                    // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
+                    if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(returnTypeName)) {
+                        System.out.println("[checkReturnIfProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ returnMapperDTO.getType() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
+                        returnMapperDTO.setClassId(cls.getClassId());
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkVariableIfImportPackage(VariableDeclarationDTO variableDeclarationDTO) {
+
+        if(variableDeclarationDTO.getVariableType().getChildNodes().size() == 0) {
+            System.out.println("[checkVariableIfImportPackage] : '" + variableDeclarationDTO.getVariableType().asString() + "'는 하위 노드가 존재하지 않습니다.");
+            return false;
+        }
+        String variableTypeName = variableDeclarationDTO.getVariableType().getChildNodes().get(0).toString();
+        System.out.println("[checkVariableIfImportPackage] : Find Class about '" + variableDeclarationDTO.getType() + " " + variableDeclarationDTO.getName() + "' variable");
+
+        Long rootBlockId = findRootBlockIdByCurrentBlockId(variableDeclarationDTO.getBlockId());
+
+        // TODO : import 패키지 중 *로 선언하는 것이 있으면 해당 라이브러리 내 모든 패키지->소스코드들을 다 까봐야 한다.
+        List<ImportDTO> imported = findImportsByRootBlockIdAndTypeName(rootBlockId, variableTypeName);
+
+        if(imported.size() == 1) {
+            System.out.println("[checkVariableIfImportPackage] : import 에서 '" + imported.get(0).getName() + "'를 발견했습니다.");
+            variableDeclarationDTO.setImportId(imported.get(0).getImportId());
+
+            Map<String, String> importMapper = parseImportClassNameOrImportPackageName(imported.get(0));
+            if(importMapper.isEmpty()){
+                return false;
+            }
+
+            variableDeclarationDTO.setClassId(findClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), variableDeclarationDTO.getName()));
+            return true;
+
+        }
+        else if(imported.size() > 1){
+            System.out.println("[checkVariableIfImportPackage] : 예상되는 import 패키지가 너무 많습니다.");
+            for(ImportDTO importDTO : imported) {
+                System.out.print("[checkVariableIfImportPackage] : Expected - "+ importDTO);
+            }
+            return false;
+        }
+        else {
+            System.out.println("[checkVariableIfImportPackage] : import 패키지를 찾지 못했습니다.");
+            return false;
+        }
+    }
+
+    private boolean checkVariableIfProjectPackage(VariableDeclarationDTO variableDeclarationDTO) {
+        if(variableDeclarationDTO.getClassId().equals(0L)) {
+            // 선언한 변수가 속한 패키지를 찾는다
+            if(variableDeclarationDTO.getVariableType().getChildNodes().size() == 0) {
+                System.out.println("[checkVariableIfProjectPackage] : '" + variableDeclarationDTO.getVariableType().asString() + "'는 하위 노드가 존재하지 않습니다.");
+                return false;
+            }
+            String variableTypeName = variableDeclarationDTO.getVariableType().getChildNodes().get(0).toString();
+            System.out.println("[checkVariableIfProjectPackage] : Find Class about '" + variableDeclarationDTO.getType() + " " + variableDeclarationDTO.getName() + "' variable");
+
+            Long rootBlockId = findRootBlockIdByCurrentBlockId(variableDeclarationDTO.getBlockId());
+
+            PackageDTO packageDTO = packageService.getPackageDTOList().stream()
+                    .filter(pkg -> pkg.getBlockId().equals(rootBlockId))
+                    .findFirst()
+                    .orElseGet(PackageDTO::new);
+
+            if(packageDTO.getPackageId() == null) {
+                System.out.println("[checkVariableIfProjectPackage] : ERROR - 패키지의 id는 NULL 될 수 없습니다.");
                 return false;
             }
             // 현재는 같은 패키지 이름을 가졌더라도 소스코드 별로 패키지가 생셩되기 때문에 list 로 담아뒀다.
@@ -266,7 +332,7 @@ public class ConvertService {
                 for(ClassDTO cls : classService.getClassDTOList()) {
                     // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
                     if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(variableTypeName)) {
-                        System.out.println("[isProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ variableDeclarationDTO.getName() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
+                        System.out.println("[checkVariableIfProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ variableDeclarationDTO.getName() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
                         variableDeclarationDTO.setClassId(cls.getClassId());
                         return true;
                     }
@@ -276,9 +342,9 @@ public class ConvertService {
         return false;
     }
 
-    // findRootBlockIdByVariable: 변수가 선언된 소스코드의 최상단 블락의 위치를 반환 (변수가 선언된 블락 id를 가지고, 해당 블락의 최상단 블락을 찾아 리턴)
-    private Long findRootBlockIdByVariable(VariableDeclarationDTO variableDeclarationDTO) {
-        Long findBlockId = variableDeclarationDTO.getBlockId();
+    // findRootBlockIdByCurrentBlockId: 소스코드의 최상단 블락의 위치를 반환 (변수가 선언된 블락 id를 가지고, 해당 블락의 최상단 블락을 찾아 리턴)
+    private Long findRootBlockIdByCurrentBlockId(Long currentBlockId) {
+        Long findBlockId = currentBlockId;
         while(true) {
             Long finalFindBlockId = findBlockId;
             BlockDTO blockDTO = blockService.getBlockDTOList().stream()
@@ -293,4 +359,52 @@ public class ConvertService {
         return findBlockId;
     }
 
+    // findImportsByRootBlockIdAndTypeName: 해당 소스파일에서 임포트로 선언한 패키지+클래스를 비교하여 같은 타입(혹은 클래스) 명을 가진 임포트 리스트를 반환
+    private List<ImportDTO> findImportsByRootBlockIdAndTypeName(Long rootBlockId, String typeName) {
+        List<ImportDTO> imports = new ArrayList<>();
+
+        // import 패키지의 클래스라면 import Id를 추가
+        for(ImportDTO importDTO : importService.getImportDTOList()) {
+            String[] importPkg = importDTO.getName().split("\\.");
+            if(importDTO.getBlockId().equals(rootBlockId) && importPkg[importPkg.length-1].equals(typeName)){
+                imports.add(importDTO);
+            }
+        }
+
+        return imports;
+    }
+
+    // parseImportClassNameOrImportPackageName: import 에서 패키지와 클래스 이름을 분리하여 map<string, string> 타입으로 반환
+    private Map<String, String> parseImportClassNameOrImportPackageName(ImportDTO importDTO) {
+        Map<String, String> importMapper = new HashMap<>();
+
+        String[] importPkg = importDTO.getName().split("\\.");
+        StringBuilder importPkgPath = new StringBuilder();
+        for(int i = 0; i < importPkg.length-1; i++) {
+            importPkgPath.append(importPkg[i]);
+            if(i != importPkg.length-2) {
+                importPkgPath.append(".");
+            }
+        }
+        importMapper.put("className", importPkg[importPkg.length-1]);
+        importMapper.put("packageName", importPkgPath.toString());
+
+        return importMapper;
+    }
+
+    // findClassInImportPackage: 프로젝트에 존재하는 다른 패키지를 import 해서 사용중일 때, 패키지에서 선언한 클래스가 import package.class;와 동일하면 class id 반환
+    private Long findClassInImportPackage(String importPackageName, String importClassName, String targetName) {
+        for(PackageDTO packageDTO : packageService.getPackageDTOList()) {
+            if(packageDTO.getName().equals(importPackageName)) {
+                for(ClassDTO classDTO : classService.getClassDTOList()) {
+                    if(classDTO.getPackageId().equals(packageDTO.getPackageId()) && classDTO.getName().equals(importClassName)) {
+                        System.out.println("[findClassInImportPackage] : '"+ importPackageName + "." + importClassName +"'에 대한 클래스를 발견하여 '"
+                                + targetName +"'의 class id '" + classDTO.getClassId() +"'를 부여합니다");
+                        return classDTO.getClassId();
+                    }
+                }
+            }
+        }
+        return 0L;
+    }
 }

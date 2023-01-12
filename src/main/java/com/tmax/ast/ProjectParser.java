@@ -47,8 +47,8 @@ public class ProjectParser {
 //                    convertService.visit(cu);
 
                     // 부분만 해보기
-                    if(fileName.equals("Game.java") || fileName.equals("Judgement.java")) {
-//                    if(fileName.equals("Computer.java") || fileName.equals("RandomNumberGenerator.java") ||
+                    if(fileName.equals("Game.java") || fileName.equals("Judgement.java") || fileName.equals("Computer.java")) {
+//                    if( fileName.equals("RandomNumberGenerator.java") ||
 //                            fileName.equals("NumberGenerator.java") || fileName.equals("FixedNumberGenerator.java")) {
                         System.out.println("File: [" + cu.getStorage().get().getPath() + "]");
                         convertService.visit(cu);

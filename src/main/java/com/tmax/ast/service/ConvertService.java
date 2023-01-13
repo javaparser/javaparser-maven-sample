@@ -48,6 +48,10 @@ public class ConvertService {
         return methodService.getMethodDeclarationDTOList();
     }
 
+    public List<MethodCallExprDTO> getMethodCallExprDTOList() {
+        return methodService.getMethodCallExprDTOList();
+    }
+
     public void clear() {
         blockService.blockListClear();
         packageService.packageListClear();
@@ -55,6 +59,7 @@ public class ConvertService {
         classService.classListClear();
         variableService.variableDeclarationListClear();
         methodService.methodDeclarationListClear();
+        methodService.methodCallExprListClear();
     }
 
     public void visit(Node node) {
@@ -123,6 +128,10 @@ public class ConvertService {
             blockDTO = parentBlockDTO;
             // 함수 및 생성자 선언 시 build
             methodService.buildMethodDeclaration(methodDeclarationId++, blockDTO.getBlockId(), node, nodeType);
+        }
+        else if(nodeType.equals("MethodCallExpr")) {
+            blockDTO = parentBlockDTO;
+            methodService.buildMethodCallExpr(methodCallExprId++, blockDTO.getBlockId(), node, nodeType);
         }
         else if(nodeType.equals("BlockStmt")) {
             blockDTO = blockService.buildBlock(blockId++, parentBlockDTO.getDepth() + 1, parentBlockDTO.getBlockId(), nodeType, node);

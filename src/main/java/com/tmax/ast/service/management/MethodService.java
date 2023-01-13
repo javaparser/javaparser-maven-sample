@@ -28,6 +28,7 @@ public class MethodService {
     public List<MethodDeclarationDTO> getMethodDeclarationDTOList() {
         return this.methodDeclarationDTOList;
     }
+
     public List<MethodCallExprDTO> getMethodCallExprDTOList() {
         return this.methodCallExprDTOList;
     }

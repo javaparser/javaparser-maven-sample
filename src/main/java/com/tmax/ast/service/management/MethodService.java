@@ -2,33 +2,41 @@ package com.tmax.ast.service.management;
 
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.SimpleName;
-import com.tmax.ast.dto.MethodDeclarationDTO;
-import com.tmax.ast.dto.ParameterDTO;
-import com.tmax.ast.dto.Position;
-import com.tmax.ast.dto.ReturnMapperDTO;
+import com.tmax.ast.dto.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tmax.ast.config.GeneratorIdentifier.parameterId;
-import static com.tmax.ast.config.GeneratorIdentifier.returnMapperId;
+import static com.tmax.ast.config.GeneratorIdentifier.*;
 
 public class MethodService {
 
     private final List<MethodDeclarationDTO> methodDeclarationDTOList;
+    private final List<MethodCallExprDTO> methodCallExprDTOList;
 
     public MethodService() {
         this.methodDeclarationDTOList = new ArrayList<>();
+        this.methodCallExprDTOList = new ArrayList<>();
     }
 
     public List<MethodDeclarationDTO> getMethodDeclarationDTOList() {
         return this.methodDeclarationDTOList;
     }
+    public List<MethodCallExprDTO> getMethodCallExprDTOList() {
+        return this.methodCallExprDTOList;
+    }
 
     public void methodDeclarationListClear() {
         this.methodDeclarationDTOList.clear();
+    }
+    public void methodCallExprListClear() {
+        this.methodCallExprDTOList.clear();
     }
 
     public void buildMethodDeclaration(Long methodDeclarationId, Long blockId, Node node, String nodeType) {
@@ -124,4 +132,59 @@ public class MethodService {
         methodDeclarationDTOList.add(methodDeclarationDTO);
     }
 
+    public void buildMethodCallExpr(Long methodCallExprId, Long blockId, Node node, String nodeType) {
+        MethodCallExprDTO methodCallExprDTO = new MethodCallExprDTO();
+        MethodCallExpr methodCallExpr = (MethodCallExpr) node;
+        List<Node> childNodes = node.getChildNodes();
+
+        String methodName = "";
+        int argumentIndex = 1;
+
+        for(Node childNode : childNodes) {
+            String childNodeTypeName = childNode.getMetaModel().getTypeName();
+            // scope node에 대한 처리도 해줘야함
+            if(childNodeTypeName.equals("SimpleName")) {
+                SimpleName simpleName = (SimpleName) childNode;
+                methodName = simpleName.asString();
+            }
+        }
+
+        List<ArgumentDTO> argumentDTOList = new ArrayList<>();
+        NodeList<Expression> arguments = methodCallExpr.getArguments();
+        for (Expression arg : arguments) {
+            ArgumentDTO argumentDTO = new ArgumentDTO();
+            argumentDTO.setIndex(argumentIndex++);
+            argumentDTO.setName(arg.toString());
+            argumentDTO.setArgumentId(argumentId++);
+            argumentDTO.setMethodCallExprId(methodCallExprId);
+            // 임시로 NodeType으로 저장
+            argumentDTO.setType(nodeType);
+            argumentDTO.setPosition(
+                    new Position(
+                            arg.getRange().get().begin.line,
+                            arg.getRange().get().begin.column,
+                            arg.getRange().get().end.line,
+                            arg.getRange().get().end.column
+                    )
+            );
+            argumentDTOList.add(argumentDTO);
+        }
+        methodCallExprDTO.setPosition(
+                new Position(
+                        node.getRange().get().begin.line,
+                        node.getRange().get().begin.column,
+                        node.getRange().get().end.line,
+                        node.getRange().get().end.column
+                )
+        );
+
+        methodCallExprDTO.setMethodCallExprId(methodCallExprId);
+        methodCallExprDTO.setBlockId(blockId);
+        methodCallExprDTO.setName(methodCallExpr.getNameAsString());
+        methodCallExprDTO.setArguments(argumentDTOList);
+
+
+        methodCallExprDTOList.add(methodCallExprDTO);
+
+    }
 }

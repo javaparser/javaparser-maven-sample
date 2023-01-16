@@ -50,6 +50,7 @@ public class MethodCallExprDTO {
                 "methodCallExprId : " + methodCallExprId +
                 ", blockId : " + blockId +
                 ", name : '" + name + '\'' +
+                ", arguments : '" + arguments + '\'' +
                 ", Position : '" + position +
                 "}\n";
     }

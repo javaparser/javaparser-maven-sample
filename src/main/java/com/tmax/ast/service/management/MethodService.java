@@ -3,7 +3,6 @@ package com.tmax.ast.service.management;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -50,7 +49,7 @@ public class MethodService {
         String accessModifierKeyword = "";
         String methodName = "";
 
-        Integer parameterIndex = 1;
+        int parameterIndex = 1;
 
         for(Node childNode : childNodes) {
             String childNodeTypeName = childNode.getMetaModel().getTypeName();
@@ -75,6 +74,7 @@ public class MethodService {
 
                 parameterDTO.setParameterId(parameterId++);
                 parameterDTO.setMethodDeclId(methodDeclarationId);
+                parameterDTO.setClassId(0L);
                 parameterDTO.setIndex(parameterIndex++);
                 parameterDTO.setName(parameterNode.getName().asString());
                 parameterDTO.setType(parameterNode.getType().asString());
@@ -143,7 +143,7 @@ public class MethodService {
 
         for(Node childNode : childNodes) {
             String childNodeTypeName = childNode.getMetaModel().getTypeName();
-            // scope node에 대한 처리도 해줘야함
+            // scope node 에 대한 처리도 해줘야함
             if(childNodeTypeName.equals("SimpleName")) {
                 SimpleName simpleName = (SimpleName) childNode;
                 methodName = simpleName.asString();
@@ -158,7 +158,7 @@ public class MethodService {
             argumentDTO.setName(arg.toString());
             argumentDTO.setArgumentId(argumentId++);
             argumentDTO.setMethodCallExprId(methodCallExprId);
-            // 임시로 NodeType으로 저장
+            // 임시로 Node Type 으로 저장
             argumentDTO.setType(nodeType);
             argumentDTO.setPosition(
                     new Position(

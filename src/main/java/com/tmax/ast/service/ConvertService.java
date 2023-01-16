@@ -4,6 +4,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.MethodReferenceExpr;
@@ -173,11 +174,13 @@ public class ConvertService {
 
     public void visitMethodsAndBuildClassId() {
         for(MethodDeclarationDTO methodDeclarationDTO : getMethodDeclarationDTOList()) {
+            // return 타입에 대한 클래스 id 부여
             ReturnMapperDTO returnMapperDTO = methodDeclarationDTO.getReturnMapper();
 
             if(returnMapperDTO.getReturnMapperId() == null) {
                 continue;
-            } else if(returnMapperDTO.getNode().getMetaModel().getTypeName().equals("VoidType") ||
+            }
+            else if(returnMapperDTO.getNode().getMetaModel().getTypeName().equals("VoidType") ||
                     returnMapperDTO.getNode().getMetaModel().getTypeName().equals("PrimitiveType")) {
                 continue;
             }
@@ -193,7 +196,102 @@ public class ConvertService {
             }
             System.out.println();
             // TODO : 외부 패키지를 import 한 경우, 패키지 클래스를 기반으로 선언한 class id를 찾아 매핑하는 작업
+
+            // 파라미터 타입에 대한 클래스 id 부여
+            List<ParameterDTO> parameterDTOList = methodDeclarationDTO.getParameters();
+
+            for(ParameterDTO parameterDTO : parameterDTOList) {
+                if(parameterDTO.getParameterId() == null) {
+                    continue;
+                }
+
+                Parameter parameter = (Parameter) parameterDTO.getNode();
+                if(parameter.getType().isPrimitiveType()) {
+                    continue;
+                }
+
+                if(!checkParameterIfImportPackage(parameterDTO, methodDeclarationDTO.getBlockId())) {
+                    if(!checkParameterIfProjectPackage(parameterDTO, methodDeclarationDTO.getBlockId())) {
+                        System.out.println("[visitMethodsAndBuildClassId] : 파라미터 타입 '" + parameterDTO.getType() + "'에 대한 클래스를 발견하지 못했습니다.");
+                    }
+                }
+                System.out.println();
+            }
+
         }
+    }
+
+    private boolean checkParameterIfImportPackage(ParameterDTO parameterDTO, Long blockId) {
+        System.out.println("[checkParameterIfImportPackage] : Find Class about '" + parameterDTO.getType() + "' parameter");
+        Long rootBlockId = findRootBlockIdByCurrentBlockId(blockId);
+
+        String parameterTypeName = parameterDTO.getType().replace(">", "").split("<")[0];
+
+        List<ImportDTO> imported = findImportsByRootBlockIdAndTypeName(rootBlockId, parameterTypeName);
+
+        if(imported.size() == 1) {
+            System.out.println("[checkParameterIfImportPackage] : import 에서 '" + imported.get(0).getName() + "'를 발견했습니다.");
+            Map<String, String> importMapper = parseImportClassNameOrImportPackageName(imported.get(0));
+            if(importMapper.isEmpty()){
+                return false;
+            }
+
+            parameterDTO.setClassId(findAndBuildClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), parameterDTO.getType()));
+            return true;
+        }
+        else if(imported.size() > 1){
+            System.out.println("[checkParameterIfImportPackage] : 예상되는 import 패키지가 너무 많습니다.");
+            for(ImportDTO importDTO : imported) {
+                System.out.print("[checkParameterIfImportPackage] : [Expected]: "+ importDTO);
+            }
+            return false;
+        }
+        else {
+            System.out.println("[checkParameterIfImportPackage] : import 패키지를 찾지 못했습니다.");
+            return false;
+        }
+    }
+
+    private boolean checkParameterIfProjectPackage(ParameterDTO parameterDTO, Long blockId) {
+        if(!parameterDTO.getClassId().equals(0L)) {
+            System.out.println("[checkParameterIfProjectPackage] : '" + parameterDTO.getType() + "'는 이미 클래스 id를 부여했습니다.");
+            return false;
+        }
+        String parameterTypeName = parameterDTO.getType().replace(">", "").split("<")[0];
+        System.out.println("[checkParameterIfProjectPackage] : Find Class about '" + parameterDTO.getType() + "' parameter");
+
+        Long rootBlockId = findRootBlockIdByCurrentBlockId(blockId);
+
+        PackageDTO packageDTO = packageService.getPackageDTOList().stream()
+                .filter(pkg -> pkg.getBlockId().equals(rootBlockId))
+                .findFirst()
+                .orElseGet(PackageDTO::new);
+
+        if(packageDTO.getPackageId() == null) {
+            System.out.println("[checkParameterIfProjectPackage] : ERROR - 패키지의 id는 NULL 될 수 없습니다.");
+            return false;
+        }
+        // 현재는 같은 패키지 이름을 가졌더라도 소스코드 별로 패키지가 생셩되기 때문에 list 로 담아뒀다.
+        List<PackageDTO> packaged = new ArrayList<>();
+        for(PackageDTO find : packageService.getPackageDTOList()) {
+            if(packageDTO.getName().equals(find.getName())) {
+                packaged.add(find);
+            }
+        }
+
+        // 해당 패키지에서 선언한 클래스를 찾는다
+        for(PackageDTO pkg : packaged) {
+            for(ClassDTO cls : classService.getClassDTOList()) {
+                // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
+                if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(parameterTypeName)) {
+                    System.out.println("[checkParameterIfProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ parameterDTO.getType() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
+                    parameterDTO.setClassId(cls.getClassId());
+                    return true;
+                }
+            }
+        }
+        System.out.println("[checkParameterIfProjectPackage] : 프로젝트 내에서 패키지를 찾지 못했습니다.");
+        return false;
     }
 
     private boolean checkReturnIfImportPackage(ReturnMapperDTO returnMapperDTO, Long blockId) {
@@ -211,7 +309,7 @@ public class ConvertService {
                 return false;
             }
 
-            returnMapperDTO.setClassId(findClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), returnMapperDTO.getType()));
+            returnMapperDTO.setClassId(findAndBuildClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), returnMapperDTO.getType()));
             return true;
         }
         else if(imported.size() > 1){
@@ -228,42 +326,44 @@ public class ConvertService {
     }
 
     private boolean checkReturnIfProjectPackage(ReturnMapperDTO returnMapperDTO, Long blockId) {
-        if(returnMapperDTO.getClassId().equals(0L)) {
+        if(!returnMapperDTO.getClassId().equals(0L)) {
+            System.out.println("[checkReturnIfProjectPackage] : '" + returnMapperDTO.getType() + "'는 이미 클래스 id를 부여했습니다.");
+            return false;
+        }
+        String returnTypeName = returnMapperDTO.getType().replace(">", "").split("<")[0];
+        System.out.println("[checkReturnIfProjectPackage] : Find Class about '" + returnMapperDTO.getType() + "' return mapper");
 
-            String returnTypeName = returnMapperDTO.getType().replace(">", "").split("<")[0];
-            System.out.println("[checkReturnIfProjectPackage] : Find Class about '" + returnMapperDTO.getType() + "' return mapper");
+        Long rootBlockId = findRootBlockIdByCurrentBlockId(blockId);
 
-            Long rootBlockId = findRootBlockIdByCurrentBlockId(blockId);
+        PackageDTO packageDTO = packageService.getPackageDTOList().stream()
+                .filter(pkg -> pkg.getBlockId().equals(rootBlockId))
+                .findFirst()
+                .orElseGet(PackageDTO::new);
 
-            PackageDTO packageDTO = packageService.getPackageDTOList().stream()
-                    .filter(pkg -> pkg.getBlockId().equals(rootBlockId))
-                    .findFirst()
-                    .orElseGet(PackageDTO::new);
-
-            if(packageDTO.getPackageId() == null) {
-                System.out.println("[checkReturnIfProjectPackage] : ERROR - 패키지의 id는 NULL 될 수 없습니다.");
-                return false;
+        if(packageDTO.getPackageId() == null) {
+            System.out.println("[checkReturnIfProjectPackage] : ERROR - 패키지의 id는 NULL 될 수 없습니다.");
+            return false;
+        }
+        // 현재는 같은 패키지 이름을 가졌더라도 소스코드 별로 패키지가 생셩되기 때문에 list 로 담아뒀다.
+        List<PackageDTO> packaged = new ArrayList<>();
+        for(PackageDTO find : packageService.getPackageDTOList()) {
+            if(packageDTO.getName().equals(find.getName())) {
+                packaged.add(find);
             }
-            // 현재는 같은 패키지 이름을 가졌더라도 소스코드 별로 패키지가 생셩되기 때문에 list 로 담아뒀다.
-            List<PackageDTO> packaged = new ArrayList<>();
-            for(PackageDTO find : packageService.getPackageDTOList()) {
-                if(packageDTO.getName().equals(find.getName())) {
-                    packaged.add(find);
-                }
-            }
+        }
 
-            // 해당 패키지에서 선언한 클래스를 찾는다
-            for(PackageDTO pkg : packaged) {
-                for(ClassDTO cls : classService.getClassDTOList()) {
-                    // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
-                    if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(returnTypeName)) {
-                        System.out.println("[checkReturnIfProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ returnMapperDTO.getType() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
-                        returnMapperDTO.setClassId(cls.getClassId());
-                        return true;
-                    }
+        // 해당 패키지에서 선언한 클래스를 찾는다
+        for(PackageDTO pkg : packaged) {
+            for(ClassDTO cls : classService.getClassDTOList()) {
+                // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
+                if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(returnTypeName)) {
+                    System.out.println("[checkReturnIfProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ returnMapperDTO.getType() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
+                    returnMapperDTO.setClassId(cls.getClassId());
+                    return true;
                 }
             }
         }
+        System.out.println("[checkReturnIfProjectPackage] : 프로젝트 내에서 패키지를 찾지 못했습니다.");
         return false;
     }
 
@@ -290,7 +390,7 @@ public class ConvertService {
                 return false;
             }
 
-            variableDeclarationDTO.setClassId(findClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), variableDeclarationDTO.getName()));
+            variableDeclarationDTO.setClassId(findAndBuildClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), variableDeclarationDTO.getName()));
             return true;
 
         }
@@ -308,46 +408,49 @@ public class ConvertService {
     }
 
     private boolean checkVariableIfProjectPackage(VariableDeclarationDTO variableDeclarationDTO) {
-        if(variableDeclarationDTO.getClassId().equals(0L)) {
-            // 선언한 변수가 속한 패키지를 찾는다
-            if(variableDeclarationDTO.getVariableType().getChildNodes().size() == 0) {
-                System.out.println("[checkVariableIfProjectPackage] : '" + variableDeclarationDTO.getVariableType().asString() + "'는 하위 노드가 존재하지 않습니다.");
-                return false;
+        if(!variableDeclarationDTO.getClassId().equals(0L)) {
+            System.out.println("[checkVariableIfProjectPackage] : '" + variableDeclarationDTO.getVariableType().asString() + "'는 이미 클래스 id를 부여했습니다.");
+            return false;
+        }
+        // 선언한 변수가 속한 패키지를 찾는다
+        if(variableDeclarationDTO.getVariableType().getChildNodes().size() == 0) {
+            System.out.println("[checkVariableIfProjectPackage] : '" + variableDeclarationDTO.getVariableType().asString() + "'는 하위 노드가 존재하지 않습니다.");
+            return false;
+        }
+        String variableTypeName = variableDeclarationDTO.getVariableType().getChildNodes().get(0).toString();
+        System.out.println("[checkVariableIfProjectPackage] : Find Class about '" + variableDeclarationDTO.getType() + " " + variableDeclarationDTO.getName() + "' variable");
+
+        Long rootBlockId = findRootBlockIdByCurrentBlockId(variableDeclarationDTO.getBlockId());
+
+        PackageDTO packageDTO = packageService.getPackageDTOList().stream()
+                .filter(pkg -> pkg.getBlockId().equals(rootBlockId))
+                .findFirst()
+                .orElseGet(PackageDTO::new);
+
+        if(packageDTO.getPackageId() == null) {
+            System.out.println("[checkVariableIfProjectPackage] : ERROR - 패키지의 id는 NULL 될 수 없습니다.");
+            return false;
+        }
+        // 현재는 같은 패키지 이름을 가졌더라도 소스코드 별로 패키지가 생셩되기 때문에 list 로 담아뒀다.
+        List<PackageDTO> packaged = new ArrayList<>();
+        for(PackageDTO find : packageService.getPackageDTOList()) {
+            if(packageDTO.getName().equals(find.getName())) {
+                packaged.add(find);
             }
-            String variableTypeName = variableDeclarationDTO.getVariableType().getChildNodes().get(0).toString();
-            System.out.println("[checkVariableIfProjectPackage] : Find Class about '" + variableDeclarationDTO.getType() + " " + variableDeclarationDTO.getName() + "' variable");
+        }
 
-            Long rootBlockId = findRootBlockIdByCurrentBlockId(variableDeclarationDTO.getBlockId());
-
-            PackageDTO packageDTO = packageService.getPackageDTOList().stream()
-                    .filter(pkg -> pkg.getBlockId().equals(rootBlockId))
-                    .findFirst()
-                    .orElseGet(PackageDTO::new);
-
-            if(packageDTO.getPackageId() == null) {
-                System.out.println("[checkVariableIfProjectPackage] : ERROR - 패키지의 id는 NULL 될 수 없습니다.");
-                return false;
-            }
-            // 현재는 같은 패키지 이름을 가졌더라도 소스코드 별로 패키지가 생셩되기 때문에 list 로 담아뒀다.
-            List<PackageDTO> packaged = new ArrayList<>();
-            for(PackageDTO find : packageService.getPackageDTOList()) {
-                if(packageDTO.getName().equals(find.getName())) {
-                    packaged.add(find);
-                }
-            }
-
-            // 해당 패키지에서 선언한 클래스를 찾는다
-            for(PackageDTO pkg : packaged) {
-                for(ClassDTO cls : classService.getClassDTOList()) {
-                    // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
-                    if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(variableTypeName)) {
-                        System.out.println("[checkVariableIfProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ variableDeclarationDTO.getName() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
-                        variableDeclarationDTO.setClassId(cls.getClassId());
-                        return true;
-                    }
+        // 해당 패키지에서 선언한 클래스를 찾는다
+        for(PackageDTO pkg : packaged) {
+            for(ClassDTO cls : classService.getClassDTOList()) {
+                // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
+                if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(variableTypeName)) {
+                    System.out.println("[checkVariableIfProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ variableDeclarationDTO.getName() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
+                    variableDeclarationDTO.setClassId(cls.getClassId());
+                    return true;
                 }
             }
         }
+        System.out.println("[checkVariableIfProjectPackage] : 프로젝트 내에서 패키지를 찾지 못했습니다.");
         return false;
     }
 
@@ -402,18 +505,20 @@ public class ConvertService {
     }
 
     // findClassInImportPackage: 프로젝트에 존재하는 다른 패키지를 import 해서 사용중일 때, 패키지에서 선언한 클래스가 import package.class;와 동일하면 class id 반환
-    private Long findClassInImportPackage(String importPackageName, String importClassName, String targetName) {
+    private Long findAndBuildClassInImportPackage(String importPackageName, String importClassName, String targetName) {
+        String importName = importPackageName + "." + importClassName;
         for(PackageDTO packageDTO : packageService.getPackageDTOList()) {
             if(packageDTO.getName().equals(importPackageName)) {
                 for(ClassDTO classDTO : classService.getClassDTOList()) {
                     if(classDTO.getPackageId().equals(packageDTO.getPackageId()) && classDTO.getName().equals(importClassName)) {
-                        System.out.println("[findClassInImportPackage] : '"+ importPackageName + "." + importClassName +"'에 대한 클래스를 발견하여 '"
+                        System.out.println("[findAndBuildClassInImportPackage] : '"+ importName +"'에 대한 클래스를 발견하여 '"
                                 + targetName +"'의 class id '" + classDTO.getClassId() +"'를 부여합니다");
                         return classDTO.getClassId();
                     }
                 }
             }
         }
+        System.out.println("[findAndBuildClassInImportPackage] : '"+ importName + "'에 대한 클래스를 발견하지 못해 class id 부여에 실패했습니다.");
         return 0L;
     }
 }

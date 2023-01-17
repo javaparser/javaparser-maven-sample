@@ -114,12 +114,14 @@ public class ConvertService {
         // 클래스 바로 아래에서 변수를 선언하는 멤버 필드
         else if(nodeType.equals("FieldDeclaration")) {
             blockDTO = parentBlockDTO;
-            variableService.buildVariableDeclInMemberField(variableDeclarationId++, blockDTO.getBlockId(), node);
+            ClassDTO belongedClassDTO = classService.getClassDTOList().get(classService.getClassDTOList().size()-1);
+            variableService.buildVariableDeclInMemberField(variableDeclarationId++, blockDTO.getBlockId(), belongedClassDTO.getClassId(), node);
         }
         // 함수 내에서 선언하는 변수
         else if(nodeType.equals("VariableDeclarationExpr")) {
             blockDTO = parentBlockDTO;
-            variableService.buildVariableDeclInMethod(variableDeclarationId++, blockDTO.getBlockId(), node);
+            ClassDTO belongedClassDTO = classService.getClassDTOList().get(classService.getClassDTOList().size()-1);
+            variableService.buildVariableDeclInMethod(variableDeclarationId++, blockDTO.getBlockId(), belongedClassDTO.getClassId(), node);
         }
         //
         else if(nodeType.equals("MethodDeclaration") || nodeType.equals("ConstructorDeclaration")) {
@@ -410,7 +412,7 @@ public class ConvertService {
                 return false;
             }
 
-            variableDeclarationDTO.setClassId(findAndBuildClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), variableDeclarationDTO.getName()));
+            variableDeclarationDTO.setTypeClassId(findAndBuildClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), variableDeclarationDTO.getName()));
             return true;
 
         }
@@ -428,7 +430,7 @@ public class ConvertService {
     }
 
     private boolean checkVariableIfProjectPackage(VariableDeclarationDTO variableDeclarationDTO) {
-        if(!variableDeclarationDTO.getClassId().equals(0L)) {
+        if(!variableDeclarationDTO.getTypeClassId().equals(0L)) {
             System.out.println("[checkVariableIfProjectPackage] : '" + variableDeclarationDTO.getVariableType().asString() + "'는 이미 클래스 id를 부여했습니다.");
             return false;
         }
@@ -465,7 +467,7 @@ public class ConvertService {
                 // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
                 if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(variableTypeName)) {
                     System.out.println("[checkVariableIfProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ variableDeclarationDTO.getName() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
-                    variableDeclarationDTO.setClassId(cls.getClassId());
+                    variableDeclarationDTO.setTypeClassId(cls.getClassId());
                     return true;
                 }
             }

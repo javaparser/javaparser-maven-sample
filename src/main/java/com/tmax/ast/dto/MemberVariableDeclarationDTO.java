@@ -7,7 +7,8 @@ public class MemberVariableDeclarationDTO extends VariableDeclarationDTO {
         return "MemberVariableDeclarationDTO : {" +
                 "variableId : " + getVariableId() +
                 ", blockId : " + getBlockId() +
-                ", classId : " + getClassId() +
+                ", typeClassId : " + getTypeClassId() +
+                ", belongedClassId : " + getBelongedClassId() +
                 ", importId : " + getImportId() +
                 ", name : '" + getName() + '\'' +
                 "', nodeType: '" + getNode().getMetaModel().getTypeName() +

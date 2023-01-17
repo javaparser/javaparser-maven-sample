@@ -7,7 +7,8 @@ public class LocalVariableDeclarationDTO extends VariableDeclarationDTO {
         return "LocalVariableDeclarationDTO : {" +
                 "variableId : " + getVariableId() +
                 ", blockId : " + getBlockId() +
-                ", classId : " + getClassId() +
+                ", typeClassId : " + getTypeClassId() +
+                ", belongedClassId : " + getBelongedClassId() +
                 ", importId : " + getImportId() +
                 ", name : '" + getName() + '\'' +
                 "', nodeType: '" + getNode().getMetaModel().getTypeName() +

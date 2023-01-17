@@ -9,7 +9,8 @@ import java.util.Optional;
 public class VariableDeclarationDTO {
     private Long variableId;
     private Long blockId;
-    private Long classId;
+    private Long typeClassId; // 변수가 참조하는 클래스
+    private Long belongedClassId; // 변수가 포함되어 있는 클래스
     private Long importId;
     private String name;
     private String modifier;
@@ -36,12 +37,20 @@ public class VariableDeclarationDTO {
         this.blockId = blockId;
     }
 
-    public Long getClassId() {
-        return classId;
+    public Long getTypeClassId() {
+        return typeClassId;
     }
 
-    public void setClassId(Long classId) {
-        this.classId = classId;
+    public void setTypeClassId(Long typeClassId) {
+        this.typeClassId = typeClassId;
+    }
+
+    public Long getBelongedClassId() {
+        return belongedClassId;
+    }
+
+    public void setBelongedClassId(Long belongedClassId) {
+        this.belongedClassId = belongedClassId;
     }
 
     public String getName() {
@@ -121,7 +130,8 @@ public class VariableDeclarationDTO {
         return "VariableDeclarationDTO : {" +
                 "variableId : " + variableId +
                 ", blockId : " + blockId +
-                ", classId : " + classId +
+                ", typeClassId : " + typeClassId +
+                ", belongedClassId : " + belongedClassId +
                 ", importId : " + importId +
                 ", name : '" + name + '\'' +
                 "', nodeType: '" + node.getMetaModel().getTypeName() +

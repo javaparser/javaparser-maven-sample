@@ -37,7 +37,7 @@ public class VariableService {
         this.localVariableDeclarationDTOList.clear();
     }
 
-    public void buildVariableDeclInMemberField(Long variableId, Long blockId, Node node) {
+    public void buildVariableDeclInMemberField(Long variableId, Long blockId, Long belongedClassId, Node node) {
         MemberVariableDeclarationDTO variableDeclarationDTO = new MemberVariableDeclarationDTO();
         FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 
@@ -47,8 +47,6 @@ public class VariableService {
         String type = "";
         String name = "";
         Optional<Expression> initializer = Optional.empty();
-        Long classId = 0L;
-        Long importId = 0L;
 
         // 변수 제어자
         NodeList<Modifier> modifiers = fieldDeclaration.getModifiers();
@@ -75,8 +73,9 @@ public class VariableService {
 
         variableDeclarationDTO.setVariableId(variableId);
         variableDeclarationDTO.setBlockId(blockId);
-        variableDeclarationDTO.setClassId(classId);
-        variableDeclarationDTO.setImportId(importId);
+        variableDeclarationDTO.setBelongedClassId(belongedClassId);
+        variableDeclarationDTO.setTypeClassId(0L);
+        variableDeclarationDTO.setImportId(0L);
         variableDeclarationDTO.setVariableType(variableType);
         variableDeclarationDTO.setType(type);
         variableDeclarationDTO.setName(name);
@@ -96,7 +95,7 @@ public class VariableService {
         memberVariableDeclarationDTOList.add(variableDeclarationDTO);
     }
 
-    public void buildVariableDeclInMethod(Long variableId, Long blockId, Node node) {
+    public void buildVariableDeclInMethod(Long variableId, Long blockId, Long belongedClassId, Node node) {
         LocalVariableDeclarationDTO variableDeclarationDTO = new LocalVariableDeclarationDTO();
         VariableDeclarationExpr variableDeclarationExpr = (VariableDeclarationExpr) node;
 
@@ -106,8 +105,6 @@ public class VariableService {
         String type = "";
         String name = "";
         Optional<Expression> initializer = Optional.empty();
-        Long classId = 0L;
-        Long importId = 0L;
 
         // 변수 제어자
         NodeList<Modifier> modifiers = variableDeclarationExpr.getModifiers();
@@ -134,8 +131,9 @@ public class VariableService {
 
         variableDeclarationDTO.setVariableId(variableId);
         variableDeclarationDTO.setBlockId(blockId);
-        variableDeclarationDTO.setClassId(classId);
-        variableDeclarationDTO.setImportId(importId);
+        variableDeclarationDTO.setBelongedClassId(belongedClassId);
+        variableDeclarationDTO.setTypeClassId(0L);
+        variableDeclarationDTO.setImportId(0L);
         variableDeclarationDTO.setVariableType(variableType);
         variableDeclarationDTO.setType(type);
         variableDeclarationDTO.setName(name);

@@ -70,7 +70,7 @@ public class ProjectParser {
         System.out.println(convertService.getClassDTOList());
 
         System.out.println(convertService.getMemberVariableDeclarationDTOList());
-        System.out.println(convertService.getLocalVariableDeclarationDTOList());
+        System.out.println(convertService.getStmtVariableDeclarationDTOList());
 
         System.out.println(convertService.getMethodDeclarationDTOList());
         System.out.println(convertService.getMethodCallExprDTOList());

@@ -17,24 +17,24 @@ import java.util.Optional;
 public class VariableService {
 
     private final List<MemberVariableDeclarationDTO> memberVariableDeclarationDTOList;
-    private final List<LocalVariableDeclarationDTO> localVariableDeclarationDTOList;
+    private final List<StmtVariableDeclarationDTO> stmtVariableDeclarationDTOList;
 
     public VariableService() {
         this.memberVariableDeclarationDTOList = new ArrayList<>();
-        this.localVariableDeclarationDTOList = new ArrayList<>();
+        this.stmtVariableDeclarationDTOList = new ArrayList<>();
     }
 
     public List<MemberVariableDeclarationDTO> getMemberVariableDeclarationDTOList() {
         return this.memberVariableDeclarationDTOList;
     }
 
-    public List<LocalVariableDeclarationDTO> getLocalVariableDeclarationDTOList() {
-        return this.localVariableDeclarationDTOList;
+    public List<StmtVariableDeclarationDTO> getStmtVariableDeclarationDTOList() {
+        return this.stmtVariableDeclarationDTOList;
     }
 
     public void variableDeclarationListClear() {
         this.memberVariableDeclarationDTOList.clear();
-        this.localVariableDeclarationDTOList.clear();
+        this.stmtVariableDeclarationDTOList.clear();
     }
 
     public void buildVariableDeclInMemberField(Long variableId, Long blockId, Long belongedClassId, Node node) {
@@ -96,7 +96,7 @@ public class VariableService {
     }
 
     public void buildVariableDeclInMethod(Long variableId, Long blockId, Node node) {
-        LocalVariableDeclarationDTO variableDeclarationDTO = new LocalVariableDeclarationDTO();
+        StmtVariableDeclarationDTO variableDeclarationDTO = new StmtVariableDeclarationDTO();
         VariableDeclarationExpr variableDeclarationExpr = (VariableDeclarationExpr) node;
 
         String modifierKeyword = "";
@@ -149,7 +149,7 @@ public class VariableService {
                 )
         );
 
-        localVariableDeclarationDTOList.add(variableDeclarationDTO);
+        stmtVariableDeclarationDTOList.add(variableDeclarationDTO);
     }
 
 }

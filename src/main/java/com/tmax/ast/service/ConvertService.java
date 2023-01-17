@@ -40,8 +40,8 @@ public class ConvertService {
         return variableService.getMemberVariableDeclarationDTOList();
     }
 
-    public List<LocalVariableDeclarationDTO> getLocalVariableDeclarationDTOList() {
-        return variableService.getLocalVariableDeclarationDTOList();
+    public List<StmtVariableDeclarationDTO> getStmtVariableDeclarationDTOList() {
+        return variableService.getStmtVariableDeclarationDTOList();
     }
 
     public List<MethodDeclarationDTO> getMethodDeclarationDTOList() {
@@ -173,20 +173,20 @@ public class ConvertService {
             // TODO : 외부 패키지를 import 한 경우, 패키지 클래스를 기반으로 선언한 class id를 찾아 매핑하는 작업
         }
         // method 내 변수
-        for(LocalVariableDeclarationDTO localVariableDeclarationDTO : getLocalVariableDeclarationDTOList()) {
+        for(StmtVariableDeclarationDTO stmtVariableDeclarationDTO : getStmtVariableDeclarationDTOList()) {
             // 선언한 변수가 primitive(원시) 타입이면 class id 는 0으로
-            if(localVariableDeclarationDTO.getVariableType().isPrimitiveType()) {
+            if(stmtVariableDeclarationDTO.getVariableType().isPrimitiveType()) {
                 continue;
             }
             // 1. 패키지를 import 해서 사용하는 클래스 변수인지 체크
-            boolean isImport = checkVariableIfImportPackage(localVariableDeclarationDTO);
+            boolean isImport = checkVariableIfImportPackage(stmtVariableDeclarationDTO);
 
             // 2. 그게 아니라면, 같은 프로젝트 내에 존재하는 클래스 변수
             if(!isImport) {
-                boolean isProject = checkVariableIfProjectPackage(localVariableDeclarationDTO);
+                boolean isProject = checkVariableIfProjectPackage(stmtVariableDeclarationDTO);
 
                 if(!isProject) {
-                    System.out.println("[visitVariablesAndBuildClassId] : 변수 '" + localVariableDeclarationDTO.getName() + "'에 대한 클래스를 발견하지 못했습니다.");
+                    System.out.println("[visitVariablesAndBuildClassId] : 변수 '" + stmtVariableDeclarationDTO.getName() + "'에 대한 클래스를 발견하지 못했습니다.");
                 }
             }
             System.out.println();

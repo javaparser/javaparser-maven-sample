@@ -1,10 +1,10 @@
 package com.tmax.ast.dto;
 
-public class LocalVariableDeclarationDTO extends VariableDeclarationDTO {
+public class StmtVariableDeclarationDTO extends VariableDeclarationDTO {
 
     @Override
     public String toString() {
-        return "LocalVariableDeclarationDTO : {" +
+        return "StmtVariableDeclarationDTO : {" +
                 "variableId : " + getVariableId() +
                 ", blockId : " + getBlockId() +
                 ", typeClassId : " + getTypeClassId() +

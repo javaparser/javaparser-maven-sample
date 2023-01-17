@@ -267,7 +267,7 @@ public class ConvertService {
             for(ImportDTO importDTO : imported) {
                 System.out.print("[checkParameterIfImportPackage] : [Expected]: "+ importDTO);
             }
-            return false;
+            return true;
         }
         else {
             System.out.println("[checkParameterIfImportPackage] : import 패키지를 찾지 못했습니다.");
@@ -340,7 +340,7 @@ public class ConvertService {
             for(ImportDTO importDTO : imported) {
                 System.out.print("[checkReturnIfImportPackage] : [Expected]: "+ importDTO);
             }
-            return false;
+            return true;
         }
         else {
             System.out.println("[checkReturnIfImportPackage] : import 패키지를 찾지 못했습니다.");
@@ -422,7 +422,7 @@ public class ConvertService {
             for(ImportDTO importDTO : imported) {
                 System.out.print("[checkVariableIfImportPackage] : Expected - "+ importDTO);
             }
-            return false;
+            return true;
         }
         else {
             System.out.println("[checkVariableIfImportPackage] : import 패키지를 찾지 못했습니다.");

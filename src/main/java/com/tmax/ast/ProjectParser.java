@@ -68,7 +68,10 @@ public class ProjectParser {
         System.out.println(convertService.getPackageDTOList());
         System.out.println(convertService.getImportDTOList());
         System.out.println(convertService.getClassDTOList());
-        System.out.println(convertService.getVariableDeclarationDTOList());
+
+        System.out.println(convertService.getMemberVariableDeclarationDTOList());
+        System.out.println(convertService.getLocalVariableDeclarationDTOList());
+
         System.out.println(convertService.getMethodDeclarationDTOList());
         System.out.println(convertService.getMethodCallExprDTOList());
 

@@ -2,12 +2,7 @@ package com.tmax.ast.service;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
-
-import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.Parameter;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.MethodReferenceExpr;
 import com.tmax.ast.dto.*;
 import com.tmax.ast.service.management.*;
 
@@ -41,8 +36,12 @@ public class ConvertService {
         return classService.getClassDTOList();
     }
 
-    public List<VariableDeclarationDTO> getVariableDeclarationDTOList() {
-        return variableService.getVariableDeclarationDTOList();
+    public List<MemberVariableDeclarationDTO> getMemberVariableDeclarationDTOList() {
+        return variableService.getMemberVariableDeclarationDTOList();
+    }
+
+    public List<LocalVariableDeclarationDTO> getLocalVariableDeclarationDTOList() {
+        return variableService.getLocalVariableDeclarationDTOList();
     }
 
     public List<MethodDeclarationDTO> getMethodDeclarationDTOList() {
@@ -151,20 +150,41 @@ public class ConvertService {
 
     public void visitVariablesAndBuildClassId() {
         // TODO : 선언한 객체 변수가 다른(하위) 클래스 객체를 initialize 했을 때, initializer 타입에 맞는 클래스의 id를 부여할 수 있도록 수정
-        for(VariableDeclarationDTO variableDeclarationDTO : getVariableDeclarationDTOList()) {
+        // 클래스 member 변수
+        for(MemberVariableDeclarationDTO memberVariableDeclarationDTO : getMemberVariableDeclarationDTOList()) {
             // 선언한 변수가 primitive(원시) 타입이면 class id 는 0으로
-            if(variableDeclarationDTO.getVariableType().isPrimitiveType()) {
+            if(memberVariableDeclarationDTO.getVariableType().isPrimitiveType()) {
                 continue;
             }
             // 1. 패키지를 import 해서 사용하는 클래스 변수인지 체크
-            boolean isImport = checkVariableIfImportPackage(variableDeclarationDTO);
+            boolean isImport = checkVariableIfImportPackage(memberVariableDeclarationDTO);
 
             // 2. 그게 아니라면, 같은 프로젝트 내에 존재하는 클래스 변수
             if(!isImport) {
-                boolean isProject = checkVariableIfProjectPackage(variableDeclarationDTO);
+                boolean isProject = checkVariableIfProjectPackage(memberVariableDeclarationDTO);
 
                 if(!isProject) {
-                    System.out.println("[visitVariablesAndBuildClassId] : 변수 '" + variableDeclarationDTO.getName() + "'에 대한 클래스를 발견하지 못했습니다.");
+                    System.out.println("[visitVariablesAndBuildClassId] : 변수 '" + memberVariableDeclarationDTO.getName() + "'에 대한 클래스를 발견하지 못했습니다.");
+                }
+            }
+            System.out.println();
+            // TODO : 외부 패키지를 import 한 경우, 패키지 클래스를 기반으로 선언한 class id를 찾아 매핑하는 작업
+        }
+        // method 내 변수
+        for(LocalVariableDeclarationDTO localVariableDeclarationDTO : getLocalVariableDeclarationDTOList()) {
+            // 선언한 변수가 primitive(원시) 타입이면 class id 는 0으로
+            if(localVariableDeclarationDTO.getVariableType().isPrimitiveType()) {
+                continue;
+            }
+            // 1. 패키지를 import 해서 사용하는 클래스 변수인지 체크
+            boolean isImport = checkVariableIfImportPackage(localVariableDeclarationDTO);
+
+            // 2. 그게 아니라면, 같은 프로젝트 내에 존재하는 클래스 변수
+            if(!isImport) {
+                boolean isProject = checkVariableIfProjectPackage(localVariableDeclarationDTO);
+
+                if(!isProject) {
+                    System.out.println("[visitVariablesAndBuildClassId] : 변수 '" + localVariableDeclarationDTO.getName() + "'에 대한 클래스를 발견하지 못했습니다.");
                 }
             }
             System.out.println();

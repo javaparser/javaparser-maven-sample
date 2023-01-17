@@ -16,22 +16,29 @@ import java.util.Optional;
 
 public class VariableService {
 
-    private final List<VariableDeclarationDTO> variableDeclarationDTOList;
+    private final List<MemberVariableDeclarationDTO> memberVariableDeclarationDTOList;
+    private final List<LocalVariableDeclarationDTO> localVariableDeclarationDTOList;
 
     public VariableService() {
-        this.variableDeclarationDTOList = new ArrayList<>();
+        this.memberVariableDeclarationDTOList = new ArrayList<>();
+        this.localVariableDeclarationDTOList = new ArrayList<>();
     }
 
-    public List<VariableDeclarationDTO> getVariableDeclarationDTOList() {
-        return this.variableDeclarationDTOList;
+    public List<MemberVariableDeclarationDTO> getMemberVariableDeclarationDTOList() {
+        return this.memberVariableDeclarationDTOList;
+    }
+
+    public List<LocalVariableDeclarationDTO> getLocalVariableDeclarationDTOList() {
+        return this.localVariableDeclarationDTOList;
     }
 
     public void variableDeclarationListClear() {
-        this.variableDeclarationDTOList.clear();
+        this.memberVariableDeclarationDTOList.clear();
+        this.localVariableDeclarationDTOList.clear();
     }
 
     public void buildVariableDeclInMemberField(Long variableId, Long blockId, Node node) {
-        VariableDeclarationDTO variableDeclarationDTO = new VariableDeclarationDTO();
+        MemberVariableDeclarationDTO variableDeclarationDTO = new MemberVariableDeclarationDTO();
         FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 
         String modifierKeyword = "";
@@ -86,11 +93,11 @@ public class VariableService {
                 )
         );
 
-        variableDeclarationDTOList.add(variableDeclarationDTO);
+        memberVariableDeclarationDTOList.add(variableDeclarationDTO);
     }
 
     public void buildVariableDeclInMethod(Long variableId, Long blockId, Node node) {
-        VariableDeclarationDTO variableDeclarationDTO = new VariableDeclarationDTO();
+        LocalVariableDeclarationDTO variableDeclarationDTO = new LocalVariableDeclarationDTO();
         VariableDeclarationExpr variableDeclarationExpr = (VariableDeclarationExpr) node;
 
         String modifierKeyword = "";
@@ -145,7 +152,7 @@ public class VariableService {
                 )
         );
 
-        variableDeclarationDTOList.add(variableDeclarationDTO);
+        localVariableDeclarationDTOList.add(variableDeclarationDTO);
     }
 
 }

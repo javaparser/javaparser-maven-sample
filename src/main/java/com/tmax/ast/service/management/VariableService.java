@@ -95,7 +95,7 @@ public class VariableService {
         memberVariableDeclarationDTOList.add(variableDeclarationDTO);
     }
 
-    public void buildVariableDeclInMethod(Long variableId, Long blockId, Long belongedClassId, Node node) {
+    public void buildVariableDeclInMethod(Long variableId, Long blockId, Node node) {
         LocalVariableDeclarationDTO variableDeclarationDTO = new LocalVariableDeclarationDTO();
         VariableDeclarationExpr variableDeclarationExpr = (VariableDeclarationExpr) node;
 
@@ -131,7 +131,6 @@ public class VariableService {
 
         variableDeclarationDTO.setVariableId(variableId);
         variableDeclarationDTO.setBlockId(blockId);
-        variableDeclarationDTO.setBelongedClassId(belongedClassId);
         variableDeclarationDTO.setTypeClassId(0L);
         variableDeclarationDTO.setImportId(0L);
         variableDeclarationDTO.setVariableType(variableType);

@@ -120,8 +120,7 @@ public class ConvertService {
         // 함수 내에서 선언하는 변수
         else if(nodeType.equals("VariableDeclarationExpr")) {
             blockDTO = parentBlockDTO;
-            ClassDTO belongedClassDTO = classService.getClassDTOList().get(classService.getClassDTOList().size()-1);
-            variableService.buildVariableDeclInMethod(variableDeclarationId++, blockDTO.getBlockId(), belongedClassDTO.getClassId(), node);
+            variableService.buildVariableDeclInMethod(variableDeclarationId++, blockDTO.getBlockId(), node);
         }
         //
         else if(nodeType.equals("MethodDeclaration") || nodeType.equals("ConstructorDeclaration")) {

@@ -129,7 +129,8 @@ public class ConvertService {
             // 현재 상위 block 에서 선언되는 것들.
             blockDTO = parentBlockDTO;
             // 함수 및 생성자 선언 시 build
-            methodService.buildMethodDeclaration(methodDeclarationId++, blockDTO.getBlockId(), node, nodeType);
+            ClassDTO belongedClassDTO = classService.getClassDTOList().get(classService.getClassDTOList().size()-1);
+            methodService.buildMethodDeclaration(methodDeclarationId++, blockDTO.getBlockId(), belongedClassDTO.getClassId(), node, nodeType);
         }
         else if(nodeType.equals("MethodCallExpr")) {
             blockDTO = parentBlockDTO;
@@ -258,7 +259,7 @@ public class ConvertService {
                 return false;
             }
 
-            parameterDTO.setClassId(findAndBuildClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), parameterDTO.getType()));
+            parameterDTO.setTypeClassId(findAndBuildClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), parameterDTO.getType()));
             return true;
         }
         else if(imported.size() > 1){
@@ -275,7 +276,7 @@ public class ConvertService {
     }
 
     private boolean checkParameterIfProjectPackage(ParameterDTO parameterDTO, Long blockId) {
-        if(!parameterDTO.getClassId().equals(0L)) {
+        if(!parameterDTO.getTypeClassId().equals(0L)) {
             System.out.println("[checkParameterIfProjectPackage] : '" + parameterDTO.getType() + "'는 이미 클래스 id를 부여했습니다.");
             return false;
         }
@@ -307,7 +308,7 @@ public class ConvertService {
                 // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
                 if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(parameterTypeName)) {
                     System.out.println("[checkParameterIfProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ parameterDTO.getType() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
-                    parameterDTO.setClassId(cls.getClassId());
+                    parameterDTO.setTypeClassId(cls.getClassId());
                     return true;
                 }
             }
@@ -331,7 +332,7 @@ public class ConvertService {
                 return false;
             }
 
-            returnMapperDTO.setClassId(findAndBuildClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), returnMapperDTO.getType()));
+            returnMapperDTO.setTypeClassId(findAndBuildClassInImportPackage(importMapper.get("packageName"), importMapper.get("className"), returnMapperDTO.getType()));
             return true;
         }
         else if(imported.size() > 1){
@@ -348,7 +349,7 @@ public class ConvertService {
     }
 
     private boolean checkReturnIfProjectPackage(ReturnMapperDTO returnMapperDTO, Long blockId) {
-        if(!returnMapperDTO.getClassId().equals(0L)) {
+        if(!returnMapperDTO.getTypeClassId().equals(0L)) {
             System.out.println("[checkReturnIfProjectPackage] : '" + returnMapperDTO.getType() + "'는 이미 클래스 id를 부여했습니다.");
             return false;
         }
@@ -380,7 +381,7 @@ public class ConvertService {
                 // 클래스가 속한 패키지 중에서 그 클래스 이름이 선언한 변수와 같을 때, 클래스 id 부여
                 if(pkg.getPackageId().equals(cls.getPackageId()) && cls.getName().equals(returnTypeName)) {
                     System.out.println("[checkReturnIfProjectPackage] : '"+ pkg.getName() + "." + cls.getName() +"'에 대한 클래스를 발견하여 '"+ returnMapperDTO.getType() +"'의 class id '" + cls.getClassId() +"'를 부여합니다");
-                    returnMapperDTO.setClassId(cls.getClassId());
+                    returnMapperDTO.setTypeClassId(cls.getClassId());
                     return true;
                 }
             }

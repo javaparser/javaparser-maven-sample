@@ -7,6 +7,7 @@ import java.util.List;
 public class MethodDeclarationDTO {
     private Long methodDeclId;
     private Long blockId;
+    private Long belongedClassId;
     private String name;
     private String modifier;
     private String accessModifier;
@@ -29,6 +30,14 @@ public class MethodDeclarationDTO {
 
     public void setBlockId(Long blockId) {
         this.blockId = blockId;
+    }
+
+    public Long getBelongedClassId() {
+        return belongedClassId;
+    }
+
+    public void setBelongedClassId(Long belongedClassId) {
+        this.belongedClassId = belongedClassId;
     }
 
     public String getName() {
@@ -92,6 +101,7 @@ public class MethodDeclarationDTO {
         return "MethodDeclarationDTO{" +
                 "methodDeclarationId: " + methodDeclId +
                 ", blockId: " + blockId +
+                ", belongedClassId: " + belongedClassId +
                 ", name: '" + name + '\'' +
                 "', nodeType: '" + node.getMetaModel().getTypeName() +
                 ", modifier: '" + modifier + '\'' +

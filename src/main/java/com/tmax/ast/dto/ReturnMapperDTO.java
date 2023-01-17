@@ -5,7 +5,7 @@ import com.github.javaparser.ast.Node;
 public class ReturnMapperDTO {
     private Long returnMapperId;
     private Long methodDeclId;
-    private Long classId;
+    private Long typeClassId;
     private String type;
     private Node node;
     private Position position;
@@ -26,12 +26,12 @@ public class ReturnMapperDTO {
         this.methodDeclId = methodDeclId;
     }
 
-    public Long getClassId() {
-        return classId;
+    public Long getTypeClassId() {
+        return typeClassId;
     }
 
-    public void setClassId(Long classId) {
-        this.classId = classId;
+    public void setTypeClassId(Long typeClassId) {
+        this.typeClassId = typeClassId;
     }
 
     public String getType() {
@@ -63,7 +63,7 @@ public class ReturnMapperDTO {
         return "ReturnMapperDTO{" +
                 "returnMapperId: " + returnMapperId +
                 ", methodDeclId: " + methodDeclId +
-                ", classId: " + classId +
+                ", typeClassId: " + typeClassId +
                 ", type: '" + type + '\'' +
                 ", position: " + position +
                 '}';

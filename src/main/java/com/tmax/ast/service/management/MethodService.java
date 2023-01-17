@@ -39,7 +39,7 @@ public class MethodService {
         this.methodCallExprDTOList.clear();
     }
 
-    public void buildMethodDeclaration(Long methodDeclarationId, Long blockId, Node node, String nodeType) {
+    public void buildMethodDeclaration(Long methodDeclarationId, Long blockId, Long belongedClassId, Node node, String nodeType) {
         MethodDeclarationDTO methodDeclarationDTO = new MethodDeclarationDTO();
         ReturnMapperDTO returnMapperDTO = new ReturnMapperDTO();
         List<ParameterDTO> parameters = new ArrayList<>();
@@ -74,7 +74,7 @@ public class MethodService {
 
                 parameterDTO.setParameterId(parameterId++);
                 parameterDTO.setMethodDeclId(methodDeclarationId);
-                parameterDTO.setClassId(0L);
+                parameterDTO.setTypeClassId(0L);
                 parameterDTO.setIndex(parameterIndex++);
                 parameterDTO.setName(parameterNode.getName().asString());
                 parameterDTO.setType(parameterNode.getType().asString());
@@ -96,7 +96,7 @@ public class MethodService {
 
                 returnMapperDTO.setReturnMapperId(returnMapperId++);
                 returnMapperDTO.setMethodDeclId(methodDeclarationId);
-                returnMapperDTO.setClassId(0L);
+                returnMapperDTO.setTypeClassId(0L);
                 returnMapperDTO.setType(returnValueTypeName);
                 returnMapperDTO.setNode(childNode);
                 returnMapperDTO.setPosition(
@@ -113,6 +113,7 @@ public class MethodService {
 
         methodDeclarationDTO.setMethodDeclId(methodDeclarationId);
         methodDeclarationDTO.setBlockId(blockId);
+        methodDeclarationDTO.setBelongedClassId(belongedClassId);
         methodDeclarationDTO.setName(methodName);
         methodDeclarationDTO.setModifier(modifierKeyword);
         methodDeclarationDTO.setAccessModifier(accessModifierKeyword);

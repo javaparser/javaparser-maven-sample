@@ -5,7 +5,7 @@ import com.github.javaparser.ast.Node;
 public class ParameterDTO {
     private Long parameterId;
     private Long methodDeclId;
-    private Long classId;
+    private Long typeClassId;
     private Integer index;
     private String name;
     private String type;
@@ -28,12 +28,12 @@ public class ParameterDTO {
         this.methodDeclId = methodDeclId;
     }
 
-    public Long getClassId() {
-        return classId;
+    public Long getTypeClassId() {
+        return typeClassId;
     }
 
-    public void setClassId(Long classId) {
-        this.classId = classId;
+    public void setTypeClassId(Long typeClassId) {
+        this.typeClassId = typeClassId;
     }
 
     public Integer getIndex() {
@@ -81,7 +81,7 @@ public class ParameterDTO {
         return "ParameterDTO{" +
                 "parameterId: " + parameterId +
                 ", methodDeclarationId: " + methodDeclId +
-                ", classId: " + classId +
+                ", typeClassId: " + typeClassId +
                 ", index: " + index +
                 ", name: '" + name + '\'' +
                 ", type: '" + type + '\'' +

@@ -5,6 +5,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.Parameter;
 import com.tmax.ast.dto.*;
 import com.tmax.ast.service.management.*;
+import javassist.bytecode.analysis.ControlFlow;
 
 import java.util.*;
 
@@ -241,6 +242,52 @@ public class ConvertService {
             }
 
         }
+    }
+
+    public void visitMethodCallExpr() {
+        List<MethodCallExprDTO> methodCallExprDTOList = methodService.getMethodCallExprDTOList();
+        for (MethodCallExprDTO methodCallExprDTO : methodCallExprDTOList) {
+            Long typeClassId = buildTypeClassId(methodCallExprDTO.getNameExpr(), methodCallExprDTO.getBlockId());
+            methodCallExprDTO.setNameExprTypeClassId(typeClassId);
+        }
+    }
+
+    private Long buildTypeClassId(String methodCallNameExpr, Long blockId) {
+        List<StmtVariableDeclarationDTO> stmtVariableDeclarationDTOList = variableService.getStmtVariableDeclarationDTOList();
+        List<Long> blockIdList = findBlockIdList(blockId);
+
+        for (StmtVariableDeclarationDTO stmtVariableDeclarationDTO : stmtVariableDeclarationDTOList) {
+            Long stmtVarBlockId = stmtVariableDeclarationDTO.getBlockId();
+            if(stmtVariableDeclarationDTO.getName().equals(methodCallNameExpr)) {
+
+                for (Long currentId : blockIdList) {
+
+                    if (stmtVarBlockId.equals(currentId)) {
+
+                        return stmtVariableDeclarationDTO.getTypeClassId();
+                    }
+                }
+            }
+        }
+
+        // [Todo] 선언되지 않은 static class변수에 대한 처리 추가 필요
+        System.out.println("method Call의 Class Type을 찾지 못함");
+        return null;
+    }
+
+    private List<Long> findBlockIdList(Long blockId) {
+        List<Long> blockIdList = new ArrayList<>();
+        Long tempId = blockId;
+        while (true) {
+            blockIdList.add(tempId);
+            Long parentBlockId = findParentBlockIdByCurrentBlockId(tempId);
+            if (parentBlockId != null) {
+                tempId = parentBlockId;
+            } else { // parent Block Id가 없으면
+                break;
+            }
+        }
+        return blockIdList;
     }
 
     private boolean checkParameterIfImportPackage(ParameterDTO parameterDTO, Long blockId) {
@@ -491,6 +538,17 @@ public class ConvertService {
             findBlockId = blockDTO.getParentBlockId();
         }
         return findBlockId;
+    }
+
+    private Long findParentBlockIdByCurrentBlockId(Long currentBlockId) {
+        BlockDTO blockDTO = blockService.getBlockDTOList().stream()
+                .filter(blockDTO1 -> blockDTO1.getBlockId().equals(currentBlockId))
+                .findFirst()
+                .orElseGet(BlockDTO::new);
+        if(blockDTO.getParentBlockId() == null) {
+            return null;
+        }
+        return blockDTO.getParentBlockId();
     }
 
     // findImportsByRootBlockIdAndTypeName: 해당 소스파일에서 임포트로 선언한 패키지+클래스를 비교하여 같은 타입(혹은 클래스) 명을 가진 임포트 리스트를 반환

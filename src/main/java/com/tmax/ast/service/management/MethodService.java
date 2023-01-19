@@ -6,6 +6,7 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.tmax.ast.dto.*;
 
@@ -140,7 +141,12 @@ public class MethodService {
         List<Node> childNodes = node.getChildNodes();
 
         String methodName = "";
+        String varName = "";
         int argumentIndex = 1;
+
+        if(((MethodCallExpr) node).getScope().get().isNameExpr()) {
+            varName = ((MethodCallExpr) node).getScope().get().toString();
+        }
 
         for(Node childNode : childNodes) {
             String childNodeTypeName = childNode.getMetaModel().getTypeName();
@@ -148,6 +154,12 @@ public class MethodService {
             if(childNodeTypeName.equals("SimpleName")) {
                 SimpleName simpleName = (SimpleName) childNode;
                 methodName = simpleName.asString();
+            }
+            else if (childNodeTypeName.equals("NameExpr")) {
+                // 왜 값이 안나올까
+
+                NameExpr nameExpr = (NameExpr) childNode;
+                // varName = nameExpr.getNameAsString();
             }
         }
 
@@ -184,9 +196,14 @@ public class MethodService {
         methodCallExprDTO.setBlockId(blockId);
         methodCallExprDTO.setName(methodCallExpr.getNameAsString());
         methodCallExprDTO.setArguments(argumentDTOList);
+        methodCallExprDTO.setNameExpr(varName);
 
 
         methodCallExprDTOList.add(methodCallExprDTO);
+
+    }
+
+    public void findVariableDTOForMethodCall() {
 
     }
 }

@@ -19,14 +19,37 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependencies>
-        <!-- Here are all your dependencies. Currently only one. These are automatically downloaded from https://mvnrepository.com/ -->
-        <dependency>
-            <groupId>com.github.javaparser</groupId>
-            <artifactId>javaparser-core</artifactId>
-            <version>3.25.0</version>
-        </dependency>
-    </dependencies>
+  <dependencies>
+	<dependency>
+	  	 <groupId>io.quarkus.qe</groupId>
+	   	 <artifactId>quarkus-test-openshift</artifactId>
+	 	 <version>1.3.0.Beta4</version>
+	   	 <scope>provided</scope>
+	</dependency>
+<!-- https://mvnrepository.com/artifact/commons-logging/commons-logging -->
+<dependency>
+    <groupId>commons-logging</groupId>
+    <artifactId>commons-logging</artifactId>
+    <version>1.2</version>
+</dependency> 
+
+ <dependency>
+           <groupId>com.github.javaparser</groupId>
+           <artifactId>javaparser-core</artifactId>
+           <version>3.25.0</version>
+ </dependency>
+ <!-- https://mvnrepository.com/artifact/com.codingapi.springboot/springboot-framework -->
+<dependency>
+    <groupId>com.codingapi.springboot</groupId>
+    <artifactId>springboot-framework</artifactId>
+    <version>1.0.5</version>
+</dependency>
+
+  	</dependencies>
+    
+    <!-- https://mvnrepository.com/artifact/io.quarkus.qe/quarkus-test-openshift -->
+
+
 
     <!-- This blob of configuration tells Maven to make the jar executable. You can run it with:
     mvn clean package

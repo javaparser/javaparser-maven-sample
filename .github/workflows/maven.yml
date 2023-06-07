@@ -11,8 +11,7 @@ name: Java CI with Maven
 on:
   push:
     branches: [ "TAF0623" ]
-  pull_request:
-    branches: [ "master" ]
+  
 
   workflow_dispatch:
 jobs:
@@ -32,7 +31,7 @@ jobs:
     - name: Build with Maven
       
       run: mvn -B package --file pom.xml
-    - name: Build with Maven
+    - name: Verify Branch That Triggered Workflow
       run: echo "Brach running this action is $GITHUB_REF"
 
   

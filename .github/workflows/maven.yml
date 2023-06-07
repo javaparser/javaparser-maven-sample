@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@TAF0623
+    - uses: jeffreyally/javaparser-maven-sample@TAF0623
     - name: Set up JDK 8
       uses: actions/setup-java@v3
       with:

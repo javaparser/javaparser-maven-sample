@@ -28,7 +28,11 @@ jobs:
         java-version: '8'
         distribution: 'corretto'
         cache: maven
+        
     - name: Build with Maven
+      
       run: mvn -B package --file pom.xml
+    - name: Build with Maven
+      run: echo "Brach running this action is $GITHUB_REF"
 
   

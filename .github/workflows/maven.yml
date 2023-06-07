@@ -14,10 +14,7 @@ on:
   pull_request:
     branches: [ "master" ]
 
-  workflow_dispatch:
-    branches:
-      - 'releases/**'
-      - '!releases/**-alpha'
+
 jobs:
   build:
 

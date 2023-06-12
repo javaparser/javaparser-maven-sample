@@ -27,8 +27,12 @@ jobs:
         java-version: '8'
         distribution: 'corretto'
         cache: maven
-        
+    - name: Java and Maven Version
+      
+      
+      run: java -version && mvn -v
     - name: Build with Maven
+      
       
       run: mvn -B package --file pom.xml
     - name: Verify Branch That Triggered Workflow

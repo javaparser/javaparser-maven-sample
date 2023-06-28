@@ -30,7 +30,7 @@ jobs:
     - name: Verify Branch That Triggered Workflow
       run: |
         temp=$(grep -P -o -m 1 "\d.\d.*-SNAPSHOT" ./pom.xml | head -1)
-        find ./ -name "pom*" -exec sed -i "0,/"$temp"/{s/"$temp"/"${temp%-SNAPSHOT}"/}" {} \;
+        find ./ -name "pom.xml" -exec sed -i "0,/"$temp"/{s/"$temp"/"${temp%-SNAPSHOT}"/}" {} \;
         cat ./pom.xml
         echo "Brach running this action is $GITHUB_REF"
         cat ./sandbox/pom3/pom.xml

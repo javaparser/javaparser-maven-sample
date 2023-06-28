@@ -1,0 +1,37 @@
+name: incrementDevBranch
+
+on:
+
+  
+
+
+  workflow_dispatch:
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 8
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'corretto'
+        cache: maven
+    - name: Java and Maven Version
+      
+      
+      run: java -version && mvn -v
+    - name: Test Maven Release Plugin
+      
+      
+      run: mvn release:update-versions
+    - name: Verify Branch That Triggered Workflow
+      run: |
+        temp=$(grep -P -o -m 1 "\d.\d.*-SNAPSHOT" ./pom.xml | head -1)
+        
+        cat ./pom.xml
+        echo "Brach running this action is $GITHUB_REF"
+        cat ./sandbox/pom3/pom.xml
+  

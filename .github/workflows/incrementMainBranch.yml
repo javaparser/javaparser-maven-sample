@@ -1,4 +1,4 @@
-name: incrementDevBranch
+name: incrementMainBranch
 
 on:
 

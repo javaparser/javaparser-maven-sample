@@ -7,7 +7,12 @@
     <!-- The name of this project (actually, the name of the artifact, which is the thing that this project produces. A jar in this case.) -->
     <artifactId>javaparser-maven-sample</artifactId>
     <!-- The version of this project. SNAPSHOT means "we're still working on it" -->
+    <packaging>pom</packaging>
     <version>2.70-SNAPSHOT</version>
+
+    <modules>
+        <module></module>
+    </modules>
 
     <properties>
         <!-- Tell Maven we want to use Java 8 -->

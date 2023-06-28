@@ -23,11 +23,12 @@ jobs:
       
       
       run: java -version && mvn -v
-    - name: Build with Maven
+    - name: Test Maven Release Plugin
       
       
-      run: mvn -B package --file pom.xml
+      run: mvn release:update-versions
     - name: Verify Branch That Triggered Workflow
-      run: echo "Brach running this action is $GITHUB_REF"
-
+      run: |
+        echo "Brach running this action is $GITHUB_REF"
+        cat ./sandbox/pom3/pom.xml
   

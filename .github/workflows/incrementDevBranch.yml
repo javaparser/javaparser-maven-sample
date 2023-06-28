@@ -29,6 +29,7 @@ jobs:
       run: mvn release:update-versions
     - name: Verify Branch That Triggered Workflow
       run: |
+        cat ./pom.xml
         echo "Brach running this action is $GITHUB_REF"
         cat ./sandbox/pom3/pom.xml
   

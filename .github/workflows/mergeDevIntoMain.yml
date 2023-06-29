@@ -37,4 +37,6 @@ jobs:
         git config pull.rebase false
         git pull ${{env.MASTER_REPO}} ${{env.MY_BRANCH}}
         git branch -a
+        temp=$(grep -P -o -m 1 "\d.\d.*-SNAPSHOT" ./pom.xml | head -1)
+        find ./ -name "pom*" -exec sed -i "0,/"$temp"/{s/"$temp"/"${temp%-SNAPSHOT}"/}" {} \;
         git push

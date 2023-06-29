@@ -2,6 +2,8 @@ name: mergeIntoMain
 
 on:
   workflow_dispatch:
+  push:
+    branches: ["development"]
 
 
 env:

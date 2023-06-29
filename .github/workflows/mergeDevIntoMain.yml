@@ -41,4 +41,6 @@ jobs:
         echo "$temp"
         find ./ -name "pom*" -exec sed -i "0,/"$temp"/{s/"$temp"/"${temp%-SNAPSHOT}"/}" {} \;
         cat pom.xml
+        git add -A .  
+        git commit -m 'mergeDevIntoMain.yml GitHub Actions'
         git push

@@ -1,0 +1,38 @@
+name: mergeIntoMain
+
+on:
+  workflow_dispatch:
+
+
+env:
+  # replace "github_username" with your GitHub username
+  # replace "github.com/username/repo.git" with your GitHub repo path
+  # do NOT replace ${{secrets.GITHUB_TOKEN}}, GitHub will take care of it
+  # MY_REPO: https://github_username:${{secrets.GITHUB_TOKEN}}@github.com/username/repo.git
+  MY_REPO: https://jeffreyally:${{secrets.GITHUB_TOKEN}}@github.com/jeffreyally/javaparser-maven-sample.git
+
+  # replace "long-lived_branch_name" with your branch name
+  MY_BRANCH: development
+
+  # replace it with the path to master repo - https://github.com/username/master_repo.git 
+  MASTER_REPO: https://github.com/jeffreyally/javaparser-maven-sample.git
+
+  # replace "master" with your master branch name
+  MASTER_BRANCH: master
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Merge with master
+      run: |
+        git clone ${{env.MY_REPO}} -b ${{env.MY_BRANCH}} tmp
+        cd tmp
+        ls -l
+        git config user.name "Automerge Bot"
+        git config user.email "bot@example.com"
+        git config pull.rebase false
+        git pull ${{env.MASTER_REPO}} ${{env.MASTER_BRANCH}}
+        git branch -a
+        git push

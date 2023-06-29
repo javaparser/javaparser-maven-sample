@@ -1,4 +1,4 @@
-name: mergeIntoMainn
+name: mergeDevIntoMain
 
 on:
   workflow_dispatch:

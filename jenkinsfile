@@ -10,26 +10,11 @@ pipeline {
             }
         }
         
-        stage('Build') {
-            steps {
-                // Build Maven project
-                git credentialsId: '21ee699d-83b8-43f5-bc43-418b1505dbd9', url: 'https://github.com/jaswanthjangam99/javaparser-maven-sample'
-            }
-        }
+       
         
-        stage('Test') {
-            steps {
-                // Run unit tests
-                sh 'mvn test'
-            }
-        }
+       
         
-        stage('Archive') {
-            steps {
-                // Archive the built artifact
-                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
-            }
-        }
+       
     }
     
     post {

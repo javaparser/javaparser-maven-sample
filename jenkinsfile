@@ -13,7 +13,7 @@ pipeline {
         stage('Build') {
             steps {
                 // Build Maven project
-                sh 'mvn clean package'
+                git credentialsId: '21ee699d-83b8-43f5-bc43-418b1505dbd9', url: 'https://github.com/jaswanthjangam99/javaparser-maven-sample'
             }
         }
         

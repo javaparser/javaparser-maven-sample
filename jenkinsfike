@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from Git repository
+                git 'https://github.com/javaparser/javaparser-maven-sample'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                // Build Maven project
+                sh 'mvn clean install'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                // Run unit tests
+                sh 'mvn test'
+            }
+        }
+        
+        stage('Archive') {
+            steps {
+                // Archive the built artifact
+                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Clean up workspace
+            cleanWs()
+        }
+        
+        success {
+            echo 'Pipeline successful!'
+        }
+        
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}

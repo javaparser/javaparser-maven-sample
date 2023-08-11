@@ -9,7 +9,7 @@ pipeline {
                 git credentialsId: '21ee699d-83b8-43f5-bc43-418b1505dbd9', url: 'https://github.com/jaswanthjangam99/javaparser-maven-sample'
             }
         }
-    stage('Checkout1') {
+    stage('branch1') {
             steps {
                 // Checkout code from Git repository
                 git 'https://github.com/javaparser/javaparser-maven-sample'

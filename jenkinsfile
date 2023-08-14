@@ -6,6 +6,7 @@ pipeline {
             steps {
                 echo 'Hello World'
                 bat 'mvn test'
+                bat 'mvn test clean'
             }
         }
     }

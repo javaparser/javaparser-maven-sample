@@ -10,11 +10,12 @@ pipeline {
 				script { 
 					sh '''
 						projectVersion=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
-						if [ $branch == 'master' ];
+						env
+						if [[ $branch == "master" ]];
 						then
-							mvn versions:set -DnewVersion=$projectVersion-$build_num -s settings.xml
+							mvn versions:set -DnewVersion=$projectVersion-$build_num
 						else
-							mvn versions:set -DnewVersion=$projectVersion-SNAPSHOT -s settings.xml
+							mvn versions:set -DnewVersion=$projectVersion-SNAPSHOT
 						fi
 					'''
 				}

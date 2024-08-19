@@ -9,7 +9,7 @@ pipeline {
 				script { 
 					if (branch == 'master'){
 						sh '''
-							mvn clean deploy -s settings.xml
+							which mvn
 						'''
 					} else {
 						sh '''

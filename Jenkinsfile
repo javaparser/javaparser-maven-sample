@@ -14,6 +14,7 @@ pipeline {
 							mvn versions:set -DnewVersion=$projectVersion-$build_num -s settings.xml
 						else
 							mvn versions:set -DnewVersion=$projectVersion-SNAPSHOT -s settings.xml
+						fi
 					'''
 				}
 			}

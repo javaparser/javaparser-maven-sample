@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
 def BranchList = ["master", "dev", "stage"]
+def branch = "${env.BRANCH_NAME}"
 pipeline {
 	agent any
     stages {

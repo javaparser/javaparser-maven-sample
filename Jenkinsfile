@@ -7,6 +7,7 @@ pipeline {
 			steps {
 				script { 
 					sh '''
+						#!/bin/bash
 						projectVersion=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
 						echo $GIT_BRANCH
 						if [[ ${GIT_BRANCH} == "master" ]];

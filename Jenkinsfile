@@ -1,21 +1,20 @@
 #!/usr/bin/env groovy
 def BranchList = ["master", "dev", "stage"]
 def branch = "${env.BRANCH_NAME}"
+def build_num = "${env.BUILD_NUMBER}"
 pipeline {
 	agent any
     stages {
 		stage ('Update POM') {
 			steps {
 				script { 
-					if (branch == 'master'){
-						sh '''
-							which mvn
-						'''
-					} else {
-						sh '''
-							mvn clean deploy -s settings.xml
-						'''
-					}
+					sh '''
+						projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+						if [ $branch == 'master' ]
+							mvn versions:set -DnewVersion=$projectVersion-$build_num -s settings.xml
+						else
+							mvn versions:set -DnewVersion=$projectVersion-SNAPSHOT -s settings.xml
+					'''
 				}
 			}
 		}

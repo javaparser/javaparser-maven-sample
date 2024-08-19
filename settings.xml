@@ -6,7 +6,7 @@
 		<mirror>	
 			<id>nexus</id>
 			<mirrorOf>*</mirrorOf>
-			<url>http://localhost:8081/repository/maven-group/</url>
+			<url>http://192.168.1.201:8081/repository/maven-group/</url>
 		</mirror>
 	</mirrors>	
 	<profiles>
@@ -15,7 +15,7 @@
             <repositories>
                 <repository>
                     <id>deploymentSnapshot</id>
-                    <url>http://localhost:8081/repository/maven-group/</url>
+                    <url>http://192.168.1.201:8081/repository/maven-group/</url>
                     <releases>
                         <enabled>true</enabled>
                         <updatePolicy>always</updatePolicy>
@@ -29,7 +29,7 @@
             <pluginRepositories>
                 <pluginRepository>
                     <id>deploymentLibrary</id>
-                    <url>http://localhost:8081/repository/maven-group/</url>
+                    <url>http://192.168.1.201:8081/repository/maven-group/</url>
                     <releases>
                         <enabled>true</enabled>
                         <updatePolicy>always</updatePolicy>

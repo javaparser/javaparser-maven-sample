@@ -1,0 +1,17 @@
+- name: Deploy student app in PROD
+  hosts: all
+  become: yes
+  vars:
+    URL: URL-LOC
+  tasks:
+    - name: Remove the old war files
+      file:
+        name: "/opt/apache-tomcat-9.0.1/webapps/{{item}}"
+        state: absent
+      with_items:
+        - student
+        - student.war
+    - name: Download war file
+      get_url:
+        url: "{{URL}}"
+        dest: /opt/apache-tomcat-9.0.1/webapps/student.war

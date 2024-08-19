@@ -1,72 +1,50 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.jdevs</groupId>
+  <artifactId>demoartifact</artifactId>
+  <version>1.0</version>
+  <packaging>jar</packaging>
 
-    <!-- This is often your domain name (reversed.)  -->
-    <groupId>com.deloitte</groupId>
-    <!-- The name of this project (actually, the name of the artifact, which is the thing that this project produces. A jar in this case.) -->
-    <artifactId>javaparser-maven-sample</artifactId>
-    <!-- The version of this project. SNAPSHOT means "we're still working on it" -->
-    <version>1.0</version>
-
-    <properties>
-        <!-- Tell Maven we want to use Java 8 -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <!-- Tell Maven to treat all source files as UTF-8 -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <dependencies>
-        <!-- Here are all your dependencies. Currently only one. These are automatically downloaded from https://mvnrepository.com/ -->
-        <dependency>
-            <groupId>com.github.javaparser</groupId>
-            <artifactId>javaparser-core</artifactId>
-            <version>3.26.1</version>
-        </dependency>
-    </dependencies>
 
     <distributionManagement>
-		<repository>
-			<id>nexus</id>
-			<name>Internal Releases</name>
-			<url>http://192.168.1.201:8081/repository/maven-releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>nexus</id>
-			<name>Internal Snapshot Releases</name>
-			<url>http://192.168.1.201:8081/repository/maven-snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-    <!-- This blob of configuration tells Maven to make the jar executable. You can run it with:
-    mvn clean package
-    java -jar target/javaparser-maven-sample-1.0-SNAPSHOT-shaded.jar
-    -->
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.yourorganization.maven_sample.LogicPositivizer</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+      <repository>
+        <id>nexus</id>
+        <name>Internal Releases</name>
+        <url>http://192.168.1.201:8081/repository/maven-releases/</url>
+      </repository>
+      <snapshotRepository>
+        <id>nexus</id>
+        <name>Internal Snapshot Releases</name>
+        <url>http://192.168.1.201:8081/repository/maven-snapshots</url>
+      </snapshotRepository>
+    </distributionManagement>
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.0</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <warSourceDirectory>WebContent</warSourceDirectory>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+  	<dependency>
+  		<groupId>javax.servlet</groupId>
+  		<artifactId>javax.servlet-api</artifactId>
+  		<version>3.0.1</version>
+  	</dependency>
+  </dependencies>
 </project>

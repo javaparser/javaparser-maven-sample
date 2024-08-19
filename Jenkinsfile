@@ -9,7 +9,7 @@ pipeline {
 			steps {
 				script { 
 					sh '''
-						projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+						projectVersion=$(org.apache.maven.plugins:maven-help:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
 						if [ $branch == 'master' ];
 						then
 							mvn versions:set -DnewVersion=$projectVersion-$build_num -s settings.xml

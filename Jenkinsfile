@@ -2,7 +2,9 @@
 def BranchList = ["master", "dev", "stage"]
 def branch = "${env.BRANCH_NAME}"
 pipeline {
-	agent: default
+	agent {
+		
+	} default
     stages {
 		stage ('Update POM') {
 			steps {

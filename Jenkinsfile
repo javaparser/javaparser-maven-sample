@@ -10,7 +10,8 @@ pipeline {
 				script { 
 					sh '''
 						projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-						if [ $branch == 'master' ]
+						if [ $branch == 'master' ];
+						then
 							mvn versions:set -DnewVersion=$projectVersion-$build_num -s settings.xml
 						else
 							mvn versions:set -DnewVersion=$projectVersion-SNAPSHOT -s settings.xml

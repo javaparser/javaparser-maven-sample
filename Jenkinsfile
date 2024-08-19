@@ -10,7 +10,7 @@ pipeline {
 					sh '''
 						#!/bin/bash
 						projectVersion=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
-						echo $GIT_BRANCH
+						echo $projectVersion
 						if [[ ${GIT_BRANCH} == "master" ]];
 						then
 							mvn versions:set -DnewVersion=$projectVersion-${BUILD_ID}

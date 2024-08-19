@@ -7,7 +7,7 @@ pipeline {
 		stage ('Update POM') {
 			steps {
 				script { 
-					sh """
+					sh '''
 						#!/bin/bash
 						projectVersion=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
 						echo $projectVersion
@@ -17,7 +17,7 @@ pipeline {
 						else
 							mvn versions:set -DnewVersion=$projectVersion-SNAPSHOT
 						fi
-					"""
+					'''
 				}
 			}
 		}
@@ -25,13 +25,13 @@ pipeline {
 			steps {
 				script { 
 					if (branch == 'master' || branch == 'dev'){
-						sh """
+						sh '''
 							mvn clean deploy
-						"""
+						'''
 					} else {
-						sh """
+						sh '''
 							mvn clean install
-						"""
+						'''
 					}
 				}
 			}

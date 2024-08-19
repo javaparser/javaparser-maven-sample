@@ -1,7 +1,5 @@
 #!/usr/bin/env groovy
 def BranchList = ["master", "dev", "stage"]
-def branch = "${env.BRANCH_NAME}"
-def build_num = "${env.BUILD_NUMBER}"
 pipeline {
 	agent any
     stages {
@@ -10,9 +8,10 @@ pipeline {
 				script { 
 					sh '''
 						projectVersion=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
-						if [[ $branch == "master" ]];
+						echo $GIT_BRANCH
+						if [[ ${GIT_BRANCH} == "master" ]];
 						then
-							mvn versions:set -DnewVersion=$projectVersion-$build_num
+							mvn versions:set -DnewVersion=$projectVersion-${BUILD_ID}
 						else
 							mvn versions:set -DnewVersion=$projectVersion-SNAPSHOT
 						fi
@@ -25,11 +24,11 @@ pipeline {
 				script { 
 					if (branch == 'master' || branch == 'dev'){
 						sh '''
-							mvn clean deploy -s settings.xml
+							mvn clean deploy
 						'''
 					} else {
 						sh '''
-							mvn clean install -s settings.xml
+							mvn clean install
 						'''
 					}
 				}

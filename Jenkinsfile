@@ -4,6 +4,9 @@ def branch = "${env.BRANCH_NAME}"
 def PRO_VERSION = "1.0"
 pipeline {
 	agent any
+	options {
+        ansiColor('xterm')
+    }
     stages {
 		stage ('Update POM') {
 			steps {

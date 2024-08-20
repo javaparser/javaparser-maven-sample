@@ -9,13 +9,13 @@ pipeline {
 				script { 
 					if (branch == 'master'){
 						sh '''
-							PRO_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`
-							mvn versions:set -DnewVersion=$PRO_VERSION-${BUILD_ID} -s settings.xml
+							PRO_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout -B`
+							mvn versions:set -DnewVersion=$PRO_VERSION-${BUILD_ID} -s settings.xml -B
 						'''
 					} else {
 						sh '''
-							PRO_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`
-							mvn versions:set -DnewVersion=$PRO_VERSION-SNAPSHOT -s setting.xml
+							PRO_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout -B`
+							mvn versions:set -DnewVersion=$PRO_VERSION-SNAPSHOT -s settings.xml -B
 						'''
 					}
 				}
@@ -26,11 +26,11 @@ pipeline {
 				script { 
 					if (branch == 'master' || branch == 'dev'){
 						sh '''
-							mvn clean deploy
+							mvn clean deploy -B
 						'''
 					} else {
 						sh '''
-							mvn clean install 
+							mvn clean install -B
 						'''
 					}
 				}

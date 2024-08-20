@@ -2,13 +2,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
 	http://maven.apache.org/xsd/settings-1.0.0.xsd">
-	<mirrors>
+	<!-- <mirrors>
 		<mirror>	
 			<id>nexus</id>
 			<mirrorOf>*</mirrorOf>
 			<url>http://192.168.1.201:8081/repository/maven-group/</url>
 		</mirror>
-	</mirrors>	
+	</mirrors>	 -->
 	<profiles>
         <profile>
             <id>nexus</id>

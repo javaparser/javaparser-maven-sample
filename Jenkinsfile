@@ -8,7 +8,7 @@ pipeline {
 			steps {
 				script { 
 					sh "projectVersion=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`"
-					if (branch == 'master' || branch == 'dev'){
+					if (branch == 'master'){
 						sh '''
 							mvn versions:set -DnewVersion=$projectVersion-${BUILD_ID}
 						'''

@@ -13,6 +13,7 @@ pipeline {
 				script { 
 					if (branch == 'master'){
 						sh '''
+							echo $PRO_VERSION
 							mvn versions:set -DnewVersion=$PRO_VERSION-${BUILD_ID}
 						'''
 					} else {

@@ -35,7 +35,7 @@
         <version>2.6</version>
         <configuration>
           <warSourceDirectory>WebContent</warSourceDirectory>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
+          <failOnMissingWebXml>true</failOnMissingWebXml>
         </configuration>
       </plugin>
     </plugins>

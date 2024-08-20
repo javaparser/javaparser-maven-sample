@@ -10,14 +10,14 @@ pipeline {
 				script { 
 					if (branch == 'master'){
 						sh """
-							#!/bin/bash
+							#!/bin/sh
 							source /etc/profile
 							PRO_VERSION1=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`
 							mvn versions:set -DnewVersion=${PRO_VERSION}-${BUILD_ID} -s settings.xml
 						"""
 					} else {
 						sh """
-							#!/bin/bash
+							#!/bin/sh
 							source /etc/profile
 							PRO_VERSION1=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`
 							mvn versions:set -DnewVersion=${PRO_VERSION}-SNAPSHOT -s settings.xml

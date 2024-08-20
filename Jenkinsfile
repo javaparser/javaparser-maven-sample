@@ -5,6 +5,7 @@ pipeline {
 	agent any
 	environment { 
 		MAVEN_OPTS="-Xmx8G -Xms4G"
+		set JAVA_OPTS="-Dfile.encoding=UTF-8"
     }
     stages {
 		stage ('Update POM') {

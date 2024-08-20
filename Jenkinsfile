@@ -3,18 +3,21 @@ def BranchList = ["master", "dev", "stage"]
 def branch = "${env.BRANCH_NAME}"
 pipeline {
 	agent any
+	environment { 
+		MAVEN_OPTS="-Xmx8G -Xms4G"
+		PRO_VERSION="`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`"
+    }
     stages {
 		stage ('Update POM') {
 			steps {
 				script { 
-					sh "projectVersion=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`"
 					if (branch == 'master'){
 						sh '''
-							mvn versions:set -DnewVersion=$projectVersion-${BUILD_ID}
+							mvn versions:set -DnewVersion=$PRO_VERSION-${BUILD_ID}
 						'''
 					} else {
 						sh '''
-							mvn versions:set -DnewVersion=$projectVersion-SNAPSHOT
+							mvn versions:set -DnewVersion=$PRO_VERSION-SNAPSHOT
 						'''
 					}
 				}

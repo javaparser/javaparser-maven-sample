@@ -41,9 +41,40 @@
                 </pluginRepository>
             </pluginRepositories>
         </profile>
+        <profile>
+            <id>central</id>
+            <repositories>
+                <repository>
+                    <id>deploymentSnapshot</id>
+                    <url>https://repo1.maven.org/maven2/</url>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>deploymentLibrary</id>
+                    <url>https://repo1.maven.org/maven2/</url>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
     </profiles>
     <activeProfiles>
-        <activeProfile>nexus</activeProfile>
+        <activeProfile>central</activeProfile>
     </activeProfiles>
 	<servers>
 		<server>

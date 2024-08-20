@@ -5,7 +5,7 @@ pipeline {
 	agent any
 	environment { 
 		MAVEN_OPTS="-Xmx8G -Xms4G"
-		PRO_VERSION="`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`"
+		PRO_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`
     }
     stages {
 		stage ('Update POM') {

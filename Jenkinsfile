@@ -7,17 +7,16 @@ pipeline {
 		stage ('Update POM') {
 			steps {
 				script { 
-					sh '''
-						#!/bin/bash
-						projectVersion=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`
-						echo $projectVersion
-						if [[ ${GIT_BRANCH} == "master" ]];
-						then
+					sh "projectVersion=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`"
+					if (branch == 'master' || branch == 'dev'){
+						sh '''
 							mvn versions:set -DnewVersion=$projectVersion-${BUILD_ID}
-						else
+						'''
+					} else {
+						sh '''
 							mvn versions:set -DnewVersion=$projectVersion-SNAPSHOT
-						fi
-					'''
+						'''
+					}
 				}
 			}
 		}

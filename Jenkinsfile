@@ -5,7 +5,6 @@ pipeline {
 	agent any
 	environment { 
 		MAVEN_OPTS="-Xmx8G -Xms4G"
-		PRO_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`
     }
     stages {
 		stage ('Update POM') {
@@ -13,11 +12,12 @@ pipeline {
 				script { 
 					if (branch == 'master'){
 						sh '''
-							echo $PRO_VERSION
+							PRO_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`
 							mvn versions:set -DnewVersion=$PRO_VERSION-${BUILD_ID}
 						'''
 					} else {
 						sh '''
+							PRO_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout`
 							mvn versions:set -DnewVersion=$PRO_VERSION-SNAPSHOT
 						'''
 					}

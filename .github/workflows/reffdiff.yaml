@@ -1,0 +1,33 @@
+name: ReFDiff Analysis
+
+on:
+  pull_request:
+    branches:
+      - test-branch
+
+jobs:
+  refdiff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '1.8'  # Use the Java version required by ReFDiff
+
+      - name: Download ReFDiff
+        run: |
+          wget https://github.com/RefDiff/refdiff/releases/download/v1.0.0/refdiff-1.0.0.jar  # Adjust the version if needed
+
+      - name: Run ReFDiff
+        run: |
+          java -jar refdiff-1.0.0.jar analyze --path . --output results.json  # Adjust options as needed
+
+      - name: Upload results
+        uses: actions/upload-artifact@v2
+        with:
+          name: refdiff-results
+          path: results.json

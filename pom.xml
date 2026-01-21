@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- This is often your domain name (reversed.)  -->
     <groupId>com.yourorganization</groupId>
-    <!-- The name of this project (actually, the name of the artifact, which is the thing that this project produces. A jar in this case.) -->
     <artifactId>javaparser-maven-sample</artifactId>
-    <!-- The version of this project. SNAPSHOT means "we're still working on it" -->
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <!-- Tell Maven we want to use Java 8 -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <!-- Tell Maven to treat all source files as UTF-8 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-        <!-- Here are all your dependencies. Currently only one. These are automatically downloaded from https://mvnrepository.com/ -->
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-core</artifactId>
@@ -28,10 +24,6 @@
         </dependency>
     </dependencies>
 
-    <!-- This blob of configuration tells Maven to make the jar executable. You can run it with:
-    mvn clean package
-    java -jar target/javaparser-maven-sample-1.0-SNAPSHOT-shaded.jar
-    -->
     <build>
         <plugins>
             <plugin>
@@ -47,8 +39,10 @@
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <transformers>
                                 <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.yourorganization.maven_sample.LogicPositivizer</mainClass>
+                                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>
+                                      com.yourorganization.maven_sample.LogicPositivizer
+                                    </mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -57,4 +51,18 @@
             </plugin>
         </plugins>
     </build>
+
+    <!-- 👇 ADD THIS PART -->
+    <distributionManagement>
+        <repository>
+            <id>project-releases</id>
+            <url>http://192.168.31.133:8081/repository/project-releases/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>project-snapshots</id>
+            <url>http://192.168.31.133:8081/repository/project-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
